@@ -32,6 +32,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 */
 @RestController
 @RequiredArgsConstructor
+@ApiIgnore
 @Api(tags = "系统：部门管理")
 @RequestMapping("/api/dept")
 public class DeptController {

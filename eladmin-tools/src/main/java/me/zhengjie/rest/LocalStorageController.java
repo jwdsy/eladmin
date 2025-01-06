@@ -32,6 +32,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -41,6 +43,7 @@ import java.io.IOException;
 */
 @RestController
 @RequiredArgsConstructor
+@ApiIgnore
 @Api(tags = "工具：本地存储管理")
 @RequestMapping("/api/localStorage")
 public class LocalStorageController {

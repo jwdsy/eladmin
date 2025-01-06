@@ -46,6 +46,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/aliPay")
+@ApiIgnore
 @Api(tags = "工具：支付宝管理")
 public class AliPayController {
 

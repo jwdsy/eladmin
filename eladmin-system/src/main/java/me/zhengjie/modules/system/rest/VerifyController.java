@@ -26,6 +26,8 @@ import me.zhengjie.utils.enums.CodeEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
 import java.util.Objects;
 
 /**
@@ -35,6 +37,7 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/code")
+@ApiIgnore
 @Api(tags = "系统：验证码管理")
 public class VerifyController {
 
