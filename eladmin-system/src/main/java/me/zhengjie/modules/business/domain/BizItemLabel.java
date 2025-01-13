@@ -1,4 +1,4 @@
-package me.zhengjie.modules.system.domain.business;
+package me.zhengjie.modules.business.domain;
 
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableName;

@@ -40,7 +40,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @SpringBootApplication
 @EnableTransactionManagement
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
-@MapperScan("me.zhengjie.*.mybatis/**")
+@MapperScan("me.zhengjie.modules.business")
 public class AppRun {
 
     public static void main(String[] args) {

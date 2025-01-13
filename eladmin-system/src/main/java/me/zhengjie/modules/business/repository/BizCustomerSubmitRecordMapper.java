@@ -1,7 +1,7 @@
-package me.zhengjie.modules.system.repository.business;
+package me.zhengjie.modules.business.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import me.zhengjie.modules.system.domain.business.BizCustomerSubmitRecord;
+import me.zhengjie.modules.business.domain.BizCustomerSubmitRecord;
 
 import java.util.List;
 

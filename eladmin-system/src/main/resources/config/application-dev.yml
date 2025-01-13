@@ -116,3 +116,23 @@ file:
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: me.zhengjie.modules.business.domain
+  global-config:
+    db-config:
+      id-type: AUTO
+      field-strategy: NOT_EMPTY
+      db-column-underline: 'true'
+      logic-delete-value: '0'
+      logic-not-delete-value: '1'
+    refresh: 'true'
+  configuration:
+    map-underscore-to-camel-case: 'true'
+    cache-enabled: 'false'
+pagehelper:
+  helperDialect: mysql
+  params: count=countSql
+  reasonable: false
+  supportMethodsArguments: false
