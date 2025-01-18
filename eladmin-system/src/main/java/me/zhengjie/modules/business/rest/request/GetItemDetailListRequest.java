@@ -1,0 +1,48 @@
+package me.zhengjie.modules.business.rest.request;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @Description ：description
+ * @Author ：wangpengfei
+ * @Date ：created in 2025/1/15
+ */
+@Data
+public class GetItemDetailListRequest implements Serializable {
+
+    private List<Long> itemIdList;
+
+    private List<String> itemNoList;
+
+    /**
+     * 一级标签，null 是查全部
+     */
+    private Long firstLabelId;
+    /**
+     * 二级标签，null 是查全部
+     */
+    private Long secondLabelId;
+    /**
+     * 标签描述，支持模糊查询
+     */
+    private String	description;
+    /**
+     * 工厂名称，支持模糊查询
+     */
+    private String factoryName;
+
+
+
+    /**
+     * 第几页，默认1
+     */
+    private Integer pageNo = 1;
+    /**
+     * 每页数量，默认10
+     */
+    private Integer pageSize = 10;
+
+}
