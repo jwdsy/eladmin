@@ -13,9 +13,9 @@ import java.math.BigDecimal;
 @Data
 public class CreateItemDetailRequest implements Serializable {
     /**
-     * 主键ID
+     * 商品ID
      */
-    private Long	id;
+    private Long	itemId;
     /**
      * 商品编号
      */
@@ -104,4 +104,9 @@ public class CreateItemDetailRequest implements Serializable {
      * 1 春；2 夏；3 秋；4 冬
      */
     private Integer	season;
+
+    /**
+     * 用户ID
+     */
+    private Long	userId;
 }

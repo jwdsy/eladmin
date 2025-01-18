@@ -34,6 +34,11 @@ public class GetItemDetailListRequest implements Serializable {
      */
     private String factoryName;
 
+    /**
+     * 产品状态 1 上线；2 下线  不选是全部
+     */
+    private Integer	itemStatus;
+
 
 
     /**

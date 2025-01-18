@@ -3,6 +3,7 @@ package me.zhengjie.modules.business.rest.response;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -152,9 +153,19 @@ public class GetItemDetailListResponse implements Serializable {
          */
         private String qtyIn40HC;
 
+// ==================== 下面是只显示不导出的 ====================
         /**
-         * 条形码
+         * 产品状态 1 上线；2 下线
          */
+        private Integer	itemStatus;
+        /**
+         * 创建时间
+         */
+        private Date createTime;
+        /**
+         * 最近修改时间
+         */
+        private Date	lastModifyTime;
     }
 
 

@@ -7,14 +7,18 @@ import java.io.Serializable;
 /**
  * @Description ：description
  * @Author ：wangpengfei
- * @Date ：created in 2025/1/15
+ * @Date ：created in 2025/1/18
  */
 @Data
-public class DeleteItemDetailRequest implements Serializable {
+public class UpdateItemLabelStatusRequest implements Serializable {
     /**
-     * 商品ID
+     * 标签ID
      */
-    private Long	itemId;
+    private Long	labelId;
+    /**
+     * 标签状态 1 上线；2 下线
+     */
+    private Integer	labelStatus;
 
     /**
      * 用户ID

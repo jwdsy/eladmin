@@ -2,38 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="me.zhengjie.modules.business.repository.BizItemBaseRecordMapper">
 	<resultMap type="bizItemBaseRecord" id="bizItemBaseRecordResultMap">
-		<result property="id" column="id"/>
-		<result property="itemNo" column="item_no"/>
-		<result property="itemPic" column="item_pic"/>
-		<result property="description" column="description"/>
-		<result property="deliveryPort" column="delivery_port"/>
-		<result property="itemLength" column="item_length"/>
-		<result property="itemWidth" column="item_width"/>
-		<result property="itemHeight" column="item_height"/>
-		<result property="innerBox" column="inner_box"/>
-		<result property="outerCtn" column="outer_ctn"/>
-		<result property="weightPieces" column="weight_pieces"/>
-		<result property="mininumOrderQuantity" column="mininum_order_quantity"/>
-		<result property="cartonLength" column="carton_length"/>
-		<result property="cartonWidth" column="carton_width"/>
-		<result property="cartonHeight" column="carton_height"/>
-		<result property="unitPrice" column="unit_price"/>
-		<result property="factoryName" column="factory_name"/>
-		<result property="itemCraft" column="item_craft"/>
-		<result property="firstLabelId" column="first_label_id"/>
-		<result property="secondLabelId" column="second_label_id"/>
-		<result property="itemRemark" column="item_remark"/>
-		<result property="year" column="year"/>
-		<result property="season" column="season"/>
-		<result property="delFlag" column="del_flag"/>
-		<result property="createTime" column="create_time"/>
-		<result property="createUserId" column="create_user_id"/>
-		<result property="lastModifyTime" column="last_modify_time"/>
-		<result property="modifyUserId" column="modify_user_id"/>
-	</resultMap>
-	
-	<sql id="table_columns">
-		id,
+        <result property="id" column="id"/>
+        <result property="itemNo" column="item_no"/>
+        <result property="itemPic" column="item_pic"/>
+        <result property="description" column="description"/>
+        <result property="deliveryPort" column="delivery_port"/>
+        <result property="itemLength" column="item_length"/>
+        <result property="itemWidth" column="item_width"/>
+        <result property="itemHeight" column="item_height"/>
+        <result property="innerBox" column="inner_box"/>
+        <result property="outerCtn" column="outer_ctn"/>
+        <result property="weightPieces" column="weight_pieces"/>
+        <result property="mininumOrderQuantity" column="mininum_order_quantity"/>
+        <result property="cartonLength" column="carton_length"/>
+        <result property="cartonWidth" column="carton_width"/>
+        <result property="cartonHeight" column="carton_height"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="factoryName" column="factory_name"/>
+        <result property="itemCraft" column="item_craft"/>
+        <result property="firstLabelId" column="first_label_id"/>
+        <result property="secondLabelId" column="second_label_id"/>
+        <result property="itemRemark" column="item_remark"/>
+        <result property="year" column="year"/>
+        <result property="season" column="season"/>
+        <result property="itemStatus" column="item_status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="lastModifyTime" column="last_modify_time"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+    </resultMap>
+
+    <sql id="table_columns">
+        id,
 		item_no,
 		item_pic,
 		description,
@@ -56,42 +57,44 @@
 		item_remark,
 		year,
 		season,
+		item_status,
 		del_flag,
 		create_time,
 		create_user_id,
 		last_modify_time,
 		modify_user_id
     </sql>
-	<sql id="entity_properties">
-		#{id},
-		#{itemNo},
-		#{itemPic},
-		#{description},
-		#{deliveryPort},
-		#{itemLength},
-		#{itemWidth},
-		#{itemHeight},
-		#{innerBox},
-		#{outerCtn},
-		#{weightPieces},
-		#{mininumOrderQuantity},
-		#{cartonLength},
-		#{cartonWidth},
-		#{cartonHeight},
-		#{unitPrice},
-		#{factoryName},
-		#{itemCraft},
-		#{firstLabelId},
-		#{secondLabelId},
-		#{itemRemark},
-		#{year},
-		#{season},
-		#{delFlag},
-		#{createTime},
-		#{createUserId},
-		#{lastModifyTime},
-		#{modifyUserId}
-	</sql>
+    <sql id="entity_properties">
+        #{id},
+        #{itemNo},
+        #{itemPic},
+        #{description},
+        #{deliveryPort},
+        #{itemLength},
+        #{itemWidth},
+        #{itemHeight},
+        #{innerBox},
+        #{outerCtn},
+        #{weightPieces},
+        #{mininumOrderQuantity},
+        #{cartonLength},
+        #{cartonWidth},
+        #{cartonHeight},
+        #{unitPrice},
+        #{factoryName},
+        #{itemCraft},
+        #{firstLabelId},
+        #{secondLabelId},
+        #{itemRemark},
+        #{year},
+        #{season},
+        #{itemStatus},
+        #{delFlag},
+        #{createTime},
+        #{createUserId},
+        #{lastModifyTime},
+        #{modifyUserId}
+    </sql>
 
     <!-- 使用like用法：columnName like concat('%',#columnName#,'%') -->
     <sql id="page_where">
@@ -118,6 +121,7 @@
             <if test="itemRemark != null and itemRemark != ''">and item_remark = #{itemRemark}</if>
             <if test="year != null">and year = #{year}</if>
             <if test="season != null">and season = #{season}</if>
+            <if test="itemStatus != null">and item_status = #{itemStatus}</if>
             <if test="delFlag != null">and del_flag = #{delFlag}</if>
             <if test="createTime != null">and create_time = #{createTime}</if>
             <if test="createUserId != null">and create_user_id = #{createUserId}</if>
@@ -127,7 +131,7 @@
     </sql>
 
 
-	<!-- 适用于主键自增类型 -->
+    <!-- 适用于主键自增类型 -->
 
     <insert id="insertSelective" parameterType="bizItemBaseRecord">
         <selectKey resultType="Long" order="AFTER" keyProperty="id">
@@ -157,6 +161,7 @@
             <if test="itemRemark != null and itemRemark != ''">item_remark,</if>
             <if test="year != null">year,</if>
             <if test="season != null">season,</if>
+            <if test="itemStatus != null">item_status,</if>
             <if test="delFlag != null">del_flag,</if>
             <if test="createTime != null">create_time,</if>
             <if test="createUserId != null">create_user_id,</if>
@@ -186,25 +191,26 @@
             <if test="itemRemark != null and itemRemark != ''">#{itemRemark},</if>
             <if test="year != null">#{year},</if>
             <if test="season != null">#{season},</if>
+            <if test="itemStatus != null">#{itemStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="createUserId != null">#{createUserId},</if>
             <if test="lastModifyTime != null">#{lastModifyTime},</if>
             <if test="modifyUserId != null">#{modifyUserId},</if>
         </trim>
-	</insert>
+    </insert>
 
 
 
-	<delete id="deleteByPrimaryKey" parameterType="Long">
-		delete from biz_item_base_record
-		where id = #{id}
-	</delete>
+    <delete id="deleteByPrimaryKey" parameterType="Long">
+        delete from biz_item_base_record
+        where id = #{id}
+    </delete>
 
 
-	<update id="updateByPrimaryKey" parameterType="bizItemBaseRecord">
-		update biz_item_base_record 
-		<trim prefix="set" suffixOverrides=",">
+    <update id="updateByPrimaryKey" parameterType="bizItemBaseRecord">
+        update biz_item_base_record
+        <trim prefix="set" suffixOverrides=",">
             <if test="itemNo != null and itemNo != ''">item_no = #{itemNo},</if>
             <if test="itemPic != null and itemPic != ''">item_pic = #{itemPic},</if>
             <if test="description != null and description != ''">description = #{description},</if>
@@ -227,14 +233,15 @@
             <if test="itemRemark != null and itemRemark != ''">item_remark = #{itemRemark},</if>
             <if test="year != null">year = #{year},</if>
             <if test="season != null">season = #{season},</if>
+            <if test="itemStatus != null">item_status = #{itemStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="createUserId != null">create_user_id = #{createUserId},</if>
             <if test="lastModifyTime != null">last_modify_time = #{lastModifyTime},</if>
             <if test="modifyUserId != null">modify_user_id = #{modifyUserId},</if>
-		</trim>
-		<where>id = #{id}</where>
-	</update>
+        </trim>
+        <where>id = #{id}</where>
+    </update>
 
 
 
@@ -247,7 +254,7 @@
         select <include refid="table_columns" />
         from biz_item_base_record
         <include refid="page_where" />
-	</select>
+    </select>
 
     <select id="getCount" resultType="int" >
         select count(id) from biz_item_base_record
@@ -256,10 +263,10 @@
 
 
     <select id="getByPrimaryKey" resultMap="bizItemBaseRecordResultMap" parameterType="Long" >
-		select <include refid="table_columns" />
-		from biz_item_base_record
-		where id = #{id}
-	</select>
+        select <include refid="table_columns" />
+        from biz_item_base_record
+        where id = #{id}
+    </select>
 	
 	<!-- 其他自定义SQL -->
 

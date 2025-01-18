@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @Description ：description
  * @Author ：wangpengfei
@@ -36,8 +38,7 @@ public class CustomerPickItemController {
 
     @ApiOperation("导出顾客喜欢的产品列表")
     @AnonymousPostMapping(value = "/v1/exportCustomerPickItemList")
-    public ResponseEntity<GetItemDetailListResponse> exportCustomerPickItemList(@RequestBody GetDisplayPickItemListRequest request) throws Exception {
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    public void exportCustomerPickItemList(@RequestBody GetDisplayPickItemListRequest request, HttpServletResponse servletResponse) throws Exception {
     }
 
     @ApiOperation("获取顾客提交的产品列表")

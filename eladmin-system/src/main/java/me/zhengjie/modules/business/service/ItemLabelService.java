@@ -1,17 +1,27 @@
 package me.zhengjie.modules.business.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.domain.BizItemLabel;
-import me.zhengjie.modules.business.enums.ItemLevelEnum;
+import me.zhengjie.modules.business.enums.IsTypeInteger;
+import me.zhengjie.modules.business.enums.LabelLevelEnum;
+import me.zhengjie.modules.business.enums.LabelStatusEnum;
 import me.zhengjie.modules.business.repository.BizItemLabelMapper;
 import me.zhengjie.modules.business.rest.request.CreateItemLabelRequest;
+import me.zhengjie.modules.business.rest.request.DeleteItemLabelRequest;
+import me.zhengjie.modules.business.rest.request.GetItemLabelListRequest;
+import me.zhengjie.modules.business.rest.request.UpdateItemLabelStatusRequest;
 import me.zhengjie.modules.business.rest.response.CreateItemLabelResponse;
+import me.zhengjie.modules.business.rest.response.GetItemLabelListResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @Description ：description
@@ -27,27 +37,129 @@ public class ItemLabelService {
     public CreateItemLabelResponse createItemLabel(CreateItemLabelRequest request){
         CreateItemLabelResponse response = new CreateItemLabelResponse();
         if(null == request.getLabelId()){
+            // 插入标签
             BizItemLabel record = new BizItemLabel();
             record.setLabelName(request.getLabelName());
             record.setLabelLevel(request.getLabelLevel());
             record.setDescription(request.getDescription());
+            record.setLabelStatus(LabelStatusEnum.OFFLINE.getCode());
             record.setCreateTime(new Date());
+            record.setCreateUserId(request.getUserId());
             bizItemLabelMapper.insertSelective(record);
             response.setLabelLevel(request.getLabelLevel());
             response.setLabelId(record.getId());
         }else {
+            // 更新标签
             BizItemLabel itemLabel = bizItemLabelMapper.getByPrimaryKey(request.getLabelId());
             if(null == itemLabel){
-                throw new BadRequestException("未查到更新标签");
+                throw new BadRequestException("未查到标签信息");
             }
             itemLabel.setLabelName(request.getLabelName());
             itemLabel.setLabelLevel(request.getLabelLevel());
             itemLabel.setDescription(request.getDescription());
-            itemLabel.setCreateTime(new Date());
+            itemLabel.setModifyUserId(request.getUserId());
+            itemLabel.setLastModifyTime(new Date());
             bizItemLabelMapper.updateByPrimaryKey(itemLabel);
             response.setLabelLevel(request.getLabelLevel());
             response.setLabelId(itemLabel.getId());
         }
         return response;
     }
+
+    public void updateItemLabelStatus(UpdateItemLabelStatusRequest request){
+        BizItemLabel itemLabel = bizItemLabelMapper.getByPrimaryKey(request.getLabelId());
+        if(null == itemLabel){
+            throw new BadRequestException("未查到标签信息");
+        }
+        itemLabel.setLabelStatus(request.getLabelStatus());
+        itemLabel.setLastModifyTime(new Date());
+        itemLabel.setModifyUserId(request.getUserId());
+        bizItemLabelMapper.updateByPrimaryKey(itemLabel);
+    }
+
+    public void deleteItemLabel(DeleteItemLabelRequest request){
+        BizItemLabel itemLabel = bizItemLabelMapper.getByPrimaryKey(request.getLabelId());
+        if(null == itemLabel){
+            throw new BadRequestException("未查到标签信息");
+        }
+        itemLabel.setDelFlag(IsTypeInteger.YES.getCode());
+        itemLabel.setLastModifyTime(new Date());
+        itemLabel.setModifyUserId(request.getUserId());
+        bizItemLabelMapper.updateByPrimaryKey(itemLabel);
+    }
+
+    public GetItemLabelListResponse getItemLabelList(GetItemLabelListRequest request){
+        LambdaQueryWrapper<BizItemLabel> queryWrapper = getLabelListQueryWrapper(request);
+        // 分页查询
+        PageHelper.startPage(request.getPageNo(), request.getPageSize(), true);
+        List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
+        PageInfo<BizItemLabel> pageInfo = new PageInfo<>(labelList);
+
+        // 封装返回数据
+        Map<Long, String> firstLabelMap = getFirstLabelMap();
+        List<GetItemLabelListResponse.LabelModel> modelList = new ArrayList<>();
+        for (BizItemLabel label : labelList){
+            GetItemLabelListResponse.LabelModel labelModel = new GetItemLabelListResponse.LabelModel();
+            BeanUtils.copyProperties(label, labelModel);
+            labelModel.setLabelId(label.getId());
+            if(null != label.getLabelLevel()){
+                labelModel.setLabelLevelName(LabelLevelEnum.getLookup().get(label.getLabelLevel()));
+            }
+            if(null != label.getFirstLabelId()){
+                labelModel.setFirstLabelName(firstLabelMap.get(label.getFirstLabelId()));
+            }
+            modelList.add(labelModel);
+        }
+        GetItemLabelListResponse response = new GetItemLabelListResponse();
+        response.setLabelList(modelList);
+        response.setTotalNum(pageInfo.getTotal());
+        response.setHasMore(pageInfo.isHasNextPage() ? IsTypeInteger.YES.getCode() : IsTypeInteger.NO.getCode());
+        return response;
+    }
+
+    private LambdaQueryWrapper<BizItemLabel> getLabelListQueryWrapper(GetItemLabelListRequest request){
+        // 组装查询条件
+        LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
+        if(!CollectionUtils.isEmpty(request.getLabelIdList())){
+            queryWrapper.in(BizItemLabel::getId, request.getLabelIdList());
+        }
+        if(null != request.getLabelLevel()){
+            queryWrapper.eq(BizItemLabel::getLabelLevel, request.getLabelLevel());
+        }
+
+        if(null != request.getFirstLabelId()){
+            queryWrapper.eq(BizItemLabel::getFirstLabelId, request.getFirstLabelId());
+        }
+
+        if(null != request.getLabelStatus()){
+            queryWrapper.eq(BizItemLabel::getLabelStatus, request.getLabelStatus());
+        }
+
+        if(null != request.getDescription()){
+            queryWrapper.like(BizItemLabel::getDescription, request.getDescription());
+        }
+
+        // 按照级别正序排列，按照创建时间倒序排列
+        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getName());
+        queryWrapper.orderByAsc(BizItemLabel::getLabelLevel)
+                .orderByDesc(BizItemLabel::getCreateTime);
+        return queryWrapper;
+    }
+
+    private Map<Long, String> getFirstLabelMap(){
+        LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BizItemLabel::getLabelLevel, LabelLevelEnum.LEVEL_1.getCode());
+        List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(labelList)){
+            return new HashMap<>();
+        }
+        Map<Long, String> labelMap = new HashMap<>();
+        for (BizItemLabel label : labelList){
+            labelMap.put(label.getId(), label.getLabelName());
+        }
+        return labelMap;
+    }
+
+
+
 }

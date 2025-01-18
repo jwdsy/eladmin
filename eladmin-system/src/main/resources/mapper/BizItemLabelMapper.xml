@@ -2,42 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="me.zhengjie.modules.business.repository.BizItemLabelMapper">
 	<resultMap type="bizItemLabel" id="bizItemLabelResultMap">
-		<result property="id" column="id"/>
-		<result property="labelName" column="label_name"/>
-		<result property="labelLevel" column="label_level"/>
-		<result property="firstLabelId" column="first_label_id"/>
-		<result property="description" column="description"/>
-		<result property="delFlag" column="del_flag"/>
-		<result property="createTime" column="create_time"/>
-		<result property="createUserId" column="create_user_id"/>
-		<result property="lastModifyTime" column="last_modify_time"/>
-		<result property="modifyUserId" column="modify_user_id"/>
-	</resultMap>
-	
-	<sql id="table_columns">
-		id,
+        <result property="id" column="id"/>
+        <result property="labelName" column="label_name"/>
+        <result property="labelLevel" column="label_level"/>
+        <result property="firstLabelId" column="first_label_id"/>
+        <result property="description" column="description"/>
+        <result property="labelStatus" column="label_status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="lastModifyTime" column="last_modify_time"/>
+        <result property="modifyUserId" column="modify_user_id"/>
+    </resultMap>
+
+    <sql id="table_columns">
+        id,
 		label_name,
 		label_level,
 		first_label_id,
 		description,
+		label_status,
 		del_flag,
 		create_time,
 		create_user_id,
 		last_modify_time,
 		modify_user_id
     </sql>
-	<sql id="entity_properties">
-		#{id},
-		#{labelName},
-		#{labelLevel},
-		#{firstLabelId},
-		#{description},
-		#{delFlag},
-		#{createTime},
-		#{createUserId},
-		#{lastModifyTime},
-		#{modifyUserId}
-	</sql>
+    <sql id="entity_properties">
+        #{id},
+        #{labelName},
+        #{labelLevel},
+        #{firstLabelId},
+        #{description},
+        #{labelStatus},
+        #{delFlag},
+        #{createTime},
+        #{createUserId},
+        #{lastModifyTime},
+        #{modifyUserId}
+    </sql>
 
     <!-- 使用like用法：columnName like concat('%',#columnName#,'%') -->
     <sql id="page_where">
@@ -46,6 +49,7 @@
             <if test="labelLevel != null">and label_level = #{labelLevel}</if>
             <if test="firstLabelId != null">and first_label_id = #{firstLabelId}</if>
             <if test="description != null and description != ''">and description = #{description}</if>
+            <if test="labelStatus != null">and label_status = #{labelStatus}</if>
             <if test="delFlag != null">and del_flag = #{delFlag}</if>
             <if test="createTime != null">and create_time = #{createTime}</if>
             <if test="createUserId != null">and create_user_id = #{createUserId}</if>
@@ -55,7 +59,7 @@
     </sql>
 
 
-	<!-- 适用于主键自增类型 -->
+    <!-- 适用于主键自增类型 -->
 
     <insert id="insertSelective" parameterType="bizItemLabel">
         <selectKey resultType="Long" order="AFTER" keyProperty="id">
@@ -67,6 +71,7 @@
             <if test="labelLevel != null">label_level,</if>
             <if test="firstLabelId != null">first_label_id,</if>
             <if test="description != null and description != ''">description,</if>
+            <if test="labelStatus != null">label_status,</if>
             <if test="delFlag != null">del_flag,</if>
             <if test="createTime != null">create_time,</if>
             <if test="createUserId != null">create_user_id,</if>
@@ -78,37 +83,39 @@
             <if test="labelLevel != null">#{labelLevel},</if>
             <if test="firstLabelId != null">#{firstLabelId},</if>
             <if test="description != null and description != ''">#{description},</if>
+            <if test="labelStatus != null">#{labelStatus},</if>
             <if test="delFlag != null">#{delFlag},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="createUserId != null">#{createUserId},</if>
             <if test="lastModifyTime != null">#{lastModifyTime},</if>
             <if test="modifyUserId != null">#{modifyUserId},</if>
         </trim>
-	</insert>
+    </insert>
 
 
 
-	<delete id="deleteByPrimaryKey" parameterType="Long">
-		delete from biz_item_label
-		where id = #{id}
-	</delete>
+    <delete id="deleteByPrimaryKey" parameterType="Long">
+        delete from biz_item_label
+        where id = #{id}
+    </delete>
 
 
-	<update id="updateByPrimaryKey" parameterType="bizItemLabel">
-		update biz_item_label 
-		<trim prefix="set" suffixOverrides=",">
+    <update id="updateByPrimaryKey" parameterType="bizItemLabel">
+        update biz_item_label
+        <trim prefix="set" suffixOverrides=",">
             <if test="labelName != null and labelName != ''">label_name = #{labelName},</if>
             <if test="labelLevel != null">label_level = #{labelLevel},</if>
             <if test="firstLabelId != null">first_label_id = #{firstLabelId},</if>
             <if test="description != null and description != ''">description = #{description},</if>
+            <if test="labelStatus != null">label_status = #{labelStatus},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="createUserId != null">create_user_id = #{createUserId},</if>
             <if test="lastModifyTime != null">last_modify_time = #{lastModifyTime},</if>
             <if test="modifyUserId != null">modify_user_id = #{modifyUserId},</if>
-		</trim>
-		<where>id = #{id}</where>
-	</update>
+        </trim>
+        <where>id = #{id}</where>
+    </update>
 
 
 
@@ -121,7 +128,7 @@
         select <include refid="table_columns" />
         from biz_item_label
         <include refid="page_where" />
-	</select>
+    </select>
 
     <select id="getCount" resultType="int" >
         select count(id) from biz_item_label
@@ -130,10 +137,10 @@
 
 
     <select id="getByPrimaryKey" resultMap="bizItemLabelResultMap" parameterType="Long" >
-		select <include refid="table_columns" />
-		from biz_item_label
-		where id = #{id}
-	</select>
+        select <include refid="table_columns" />
+        from biz_item_label
+        where id = #{id}
+    </select>
 	
 	<!-- 其他自定义SQL -->
 

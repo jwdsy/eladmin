@@ -5,11 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.rest.AnonymousPostMapping;
-import me.zhengjie.modules.business.rest.request.CancelAllPickItemsRequest;
-import me.zhengjie.modules.business.rest.request.CustomerPickItemRequest;
-import me.zhengjie.modules.business.rest.request.CustomerSubmitItemRequest;
-import me.zhengjie.modules.business.rest.request.GetDisplayItemListRequest;
+import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.GetDisplayItemListResponse;
+import me.zhengjie.modules.business.rest.response.GetDisplayLabelListResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customer/item")
 public class CustomerItemController {
 
-    @ApiOperation("获取顾客产品列表")
+    @ApiOperation("获取展示产品标签列表")
+    @AnonymousPostMapping(value = "/v1/getDisplayLabelList")
+    public ResponseEntity<GetDisplayLabelListResponse> getDisplayLabelList(@RequestBody GetDisplayLabelListRequest request) throws Exception {
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @ApiOperation("获取展示产品列表")
     @AnonymousPostMapping(value = "/v1/getCustomerItemList")
     public ResponseEntity<GetDisplayItemListResponse> getDisplayItemList(@RequestBody GetDisplayItemListRequest request) throws Exception {
         return new ResponseEntity<>(null, HttpStatus.OK);
@@ -40,7 +44,7 @@ public class CustomerItemController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @ApiOperation("顾客选择喜欢的产品")
+    @ApiOperation("顾客取消全部喜欢的产品")
     @AnonymousPostMapping(value = "/v1/cancelAllPickItems")
     public ResponseEntity<Object> cancelAllPickItems(@RequestBody CancelAllPickItemsRequest request) throws Exception {
         return new ResponseEntity<>(null, HttpStatus.OK);

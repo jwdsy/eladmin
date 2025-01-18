@@ -21,7 +21,7 @@ import lombok.ToString;
 @ToString
 @TableName("biz_item_label")
 public class BizItemLabel implements Serializable {
-	
+
       /**
        * 主键ID
        */
@@ -42,6 +42,10 @@ public class BizItemLabel implements Serializable {
        * 标签描述
        */
       private String	description;
+      /**
+       * 标签状态 1 上线；2 下线
+       */
+      private Integer	labelStatus;
       /**
        * 删除标识 0 否，1 是
        */

@@ -31,4 +31,9 @@ public class CreateItemLabelRequest implements Serializable {
      * 标签描述
      */
     private String	description;
+
+    /**
+     * 用户ID
+     */
+    private Long	userId;
 }

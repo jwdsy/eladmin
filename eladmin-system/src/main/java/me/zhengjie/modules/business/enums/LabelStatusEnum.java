@@ -3,10 +3,10 @@ package me.zhengjie.modules.business.enums;
 import lombok.Getter;
 
 
-public enum ItemLevelEnum {
+public enum LabelStatusEnum {
 
-    LEVEL_1(1, "一级标签"),
-    LEVEL_2(2, "二级标签"),
+    ONLINE(1, "上线"),
+    OFFLINE(2, "下线"),
 
 
 
@@ -17,7 +17,7 @@ public enum ItemLevelEnum {
     @Getter
     private String name;
 
-    ItemLevelEnum(Integer code, String name) {
+    LabelStatusEnum(Integer code, String name) {
         this.name = name;
         this.code = code;
     }

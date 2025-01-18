@@ -15,4 +15,9 @@ public class DeleteItemLabelRequest implements Serializable {
      * 标签ID
      */
     private Long	labelId;
+
+    /**
+     * 用户ID
+     */
+    private Long	userId;
 }

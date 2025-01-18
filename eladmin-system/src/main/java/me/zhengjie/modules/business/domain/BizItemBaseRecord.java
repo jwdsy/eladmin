@@ -22,7 +22,7 @@ import lombok.ToString;
 @ToString
 @TableName("biz_item_base_record")
 public class BizItemBaseRecord implements Serializable {
-	
+
       /**
        * 主键ID
        */
@@ -115,6 +115,10 @@ public class BizItemBaseRecord implements Serializable {
        * 1 春；2 夏；3 秋；4 冬
        */
       private Integer	season;
+      /**
+       * 产品状态 1 上线；2 下线
+       */
+      private Integer	itemStatus;
       /**
        * 删除标识 0 否，1 是
        */
