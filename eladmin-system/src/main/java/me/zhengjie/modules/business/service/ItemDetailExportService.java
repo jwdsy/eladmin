@@ -36,7 +36,8 @@ public class ItemDetailExportService {
     // 第一行内容行号
     public static final Integer FIRST_ROW_INDEX = 11;
     // 图片宽度
-    private static final Integer DESIRED_WIDTH = 170;
+    private static final Integer ROW_HEIGHT = 170;
+    private static final Integer COLUMN_WIDTH = 25;
     @Resource
     private BizItemBaseRecordMapper bizItemBaseRecordMapper;
     @Autowired
@@ -79,7 +80,7 @@ public class ItemDetailExportService {
             GetItemDetailListResponse.ItemModel itemModel = itemModelList.get(i);
             int rowIndex = FIRST_ROW_INDEX + i;
             // 设置行高
-            sheet.setRowHeight(rowIndex, DESIRED_WIDTH);
+            sheet.setRowHeight(rowIndex, ROW_HEIGHT);
 
             int columnIndex = 1;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemNo());
@@ -89,6 +90,58 @@ public class ItemDetailExportService {
 
             columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getDescription());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getDeliveryPort());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemLength());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemWidth());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemHeight());
+
+            columnIndex++;
+            if(null != itemModel.getInnerBox()){
+                setContentCell(sheet, rowIndex, columnIndex, String.valueOf(itemModel.getInnerBox()));
+            }
+
+
+            columnIndex++;
+            if(null != itemModel.getOuterCtn()){
+                setContentCell(sheet, rowIndex, columnIndex, String.valueOf(itemModel.getOuterCtn()));
+            }
+
+            columnIndex++;
+            if(null != itemModel.getMininumOrderQuantity()){
+                setContentCell(sheet, rowIndex, columnIndex, String.valueOf(itemModel.getMininumOrderQuantity()));
+            }
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getCartonLength());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getCartonWidth());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getCartonHeight());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getCbmPerCTN());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getUnitPrice4Dollar());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getQtyIn20GP());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getQtyIn40GP());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getQtyIn40HC());
         }
     }
 
@@ -105,15 +158,16 @@ public class ItemDetailExportService {
             return;
         }
         // 设置列宽
-        sheet.setColumnWidth(columnIndex, 25);
+        sheet.setColumnWidth(columnIndex, COLUMN_WIDTH);
         BufferedImage targetImage = downloadImage(picUrl);
         ExcelPicture excelPicture = sheet.getPictures().add(rowIndex, columnIndex, targetImage);
         int originalWidth = excelPicture.getWidth();
         int originalHeight = excelPicture.getHeight();
-        double aspectRatio = (double) originalWidth / originalHeight;
-        int desiredHeight = (int) (DESIRED_WIDTH / aspectRatio); // 保持纵横比
-        excelPicture.setWidth(DESIRED_WIDTH);
-        excelPicture.setHeight(desiredHeight);
+        double aspectRatio = (double) originalHeight / originalWidth;
+        int desiredWidth = (int) (ROW_HEIGHT / aspectRatio); // 保持纵横比
+        excelPicture.setWidth(desiredWidth);
+        excelPicture.setHeight(ROW_HEIGHT);
+        excelPicture.compress(40);
     }
 
     private Workbook downloadTemplateFile(String fileUrl) {
