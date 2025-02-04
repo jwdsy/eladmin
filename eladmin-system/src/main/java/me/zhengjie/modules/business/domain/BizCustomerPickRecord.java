@@ -21,7 +21,7 @@ import lombok.ToString;
 @ToString
 @TableName("biz_customer_pick_record")
 public class BizCustomerPickRecord implements Serializable {
-	
+
       /**
        * 主键ID
        */
@@ -34,6 +34,10 @@ public class BizCustomerPickRecord implements Serializable {
        * 商品ID
        */
       private Long	itemId;
+      /**
+       * 商品备注
+       */
+      private String	itemRemark;
       /**
        * 创建时间
        */

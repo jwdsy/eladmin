@@ -9,6 +9,7 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.CreateItemDetailResponse;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
+import me.zhengjie.modules.business.service.ItemDetailExportService;
 import me.zhengjie.modules.business.service.ItemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,8 @@ public class ItemDetailController {
 
     @Autowired
     private ItemDetailService itemDetailService;
+    @Autowired
+    private ItemDetailExportService itemDetailExportService;
 
     @ApiOperation("创建/更新产品信息")
     @AnonymousPostMapping(value = "/v1/createOrUpdateItemDetail")
@@ -64,13 +67,13 @@ public class ItemDetailController {
     @ApiOperation("查询产品列表")
     @AnonymousPostMapping(value = "/v1/getItemDetailList")
     public ResponseEntity<GetItemDetailListResponse> getItemDetailList(@RequestBody GetItemDetailListRequest request) throws Exception {
-
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        GetItemDetailListResponse response = itemDetailService.getItemDetailList(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation("导出产品列表")
     @AnonymousPostMapping(value = "/v1/exportItemDetailList")
-    public void customerSubmitItem(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
-
+    public void exportItemDetailList(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
+        itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
     }
 }

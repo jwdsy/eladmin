@@ -16,8 +16,8 @@ public class CustomerSubmitItemRequest implements Serializable {
      * 用户ID
      */
     private Long userId;
-    /**
-     * 商品ID列表
-     */
-    private List<Long> itemIdList;
+//    /**
+//     * 商品ID列表
+//     */
+//    private List<Long> itemIdList;
 }

@@ -16,15 +16,15 @@ public class GetDisplayItemListResponse implements Serializable {
      * 商品列表
      */
     private List<ItemModel> itemList;
-    /**
-     * 是否有下一页 1 是，0 否
-     */
-    private Integer hasMore;
-
-    /**
-     * 总数据量
-     */
-    private Integer totalNum;
+//    /**
+//     * 是否有下一页 1 是，0 否
+//     */
+//    private Integer hasMore;
+//
+//    /**
+//     * 总数据量
+//     */
+//    private Integer totalNum;
 
     @Data
     public static class ItemModel implements Serializable {

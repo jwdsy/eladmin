@@ -31,6 +31,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class ItemLabelService {
+    private static final Map<Long, String> labelNameMap = new HashMap<>();
     @Autowired
     private BizItemLabelMapper bizItemLabelMapper;
 
@@ -160,6 +161,18 @@ public class ItemLabelService {
         return labelMap;
     }
 
-
+    public Map<Long, String> getLabelNameMap(Integer isFromDb){
+        if(IsTypeInteger.NO.getCode().equals(isFromDb)){
+            return labelNameMap;
+        }
+        List<BizItemLabel> labelList = bizItemLabelMapper.selectAll();
+        if(CollectionUtils.isEmpty(labelList)){
+            return labelNameMap;
+        }
+        for (BizItemLabel label : labelList){
+            labelNameMap.put(label.getId(), label.getLabelName());
+        }
+        return labelNameMap;
+    }
 
 }

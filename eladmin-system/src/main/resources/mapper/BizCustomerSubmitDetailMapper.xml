@@ -1,104 +1,111 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="me.zhengjie.modules.business.repository.BizCustomerPickRecordMapper">
-	<resultMap type="bizCustomerPickRecord" id="bizCustomerPickRecordResultMap">
-        <result property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="itemId" column="item_id"/>
-        <result property="itemRemark" column="item_remark"/>
-        <result property="createTime" column="create_time"/>
-    </resultMap>
-
-    <sql id="table_columns">
-        id,
+<mapper namespace="me.zhengjie.modules.business.repository.BizCustomerSubmitDetailMapper">
+	<resultMap type="bizCustomerSubmitDetail" id="bizCustomerSubmitDetailResultMap">
+		<result property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="submitRecordId" column="submit_record_id"/>
+		<result property="itemRemark" column="item_remark"/>
+		<result property="createTime" column="create_time"/>
+	</resultMap>
+	
+	<sql id="table_columns">
+		id,
 		user_id,
 		item_id,
+		submit_record_id,
 		item_remark,
 		create_time
     </sql>
-    <sql id="entity_properties">
-        #{id},
-        #{userId},
-        #{itemId},
-        #{itemRemark},
-        #{createTime}
-    </sql>
+	<sql id="entity_properties">
+		#{id},
+		#{userId},
+		#{itemId},
+		#{submitRecordId},
+		#{itemRemark},
+		#{createTime}
+	</sql>
 
     <!-- 使用like用法：columnName like concat('%',#columnName#,'%') -->
     <sql id="page_where">
         <trim prefix="where" prefixOverrides="and | or ">
             <if test="userId != null">and user_id = #{userId}</if>
             <if test="itemId != null">and item_id = #{itemId}</if>
+            <if test="submitRecordId != null">and submit_record_id = #{submitRecordId}</if>
             <if test="itemRemark != null and itemRemark != ''">and item_remark = #{itemRemark}</if>
             <if test="createTime != null">and create_time = #{createTime}</if>
         </trim>
     </sql>
 
 
-    <!-- 适用于主键自增类型 -->
+	<!-- 适用于主键自增类型 -->
 
-    <insert id="insertSelective" parameterType="bizCustomerPickRecord">
+    <insert id="insertSelective" parameterType="bizCustomerSubmitDetail">
         <selectKey resultType="Long" order="AFTER" keyProperty="id">
             SELECT LAST_INSERT_ID()
         </selectKey>
-        insert into biz_customer_pick_record
+        insert into biz_customer_submit_detail
         <trim prefix="(" suffix=")" suffixOverrides="," >
             <if test="userId != null">user_id,</if>
             <if test="itemId != null">item_id,</if>
+            <if test="submitRecordId != null">submit_record_id,</if>
             <if test="itemRemark != null and itemRemark != ''">item_remark,</if>
             <if test="createTime != null">create_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
             <if test="userId != null">#{userId},</if>
             <if test="itemId != null">#{itemId},</if>
+            <if test="submitRecordId != null">#{submitRecordId},</if>
             <if test="itemRemark != null and itemRemark != ''">#{itemRemark},</if>
             <if test="createTime != null">#{createTime},</if>
         </trim>
-    </insert>
+	</insert>
 
 
 
-    <delete id="deleteByPrimaryKey" parameterType="Long">
-        delete from biz_customer_pick_record
-        where id = #{id}
-    </delete>
+	<delete id="deleteByPrimaryKey" parameterType="Long">
+		delete from biz_customer_submit_detail
+		where id = #{id}
+	</delete>
 
 
-    <update id="updateByPrimaryKey" parameterType="bizCustomerPickRecord">
-        update biz_customer_pick_record
-        <trim prefix="set" suffixOverrides=",">
+	<update id="updateByPrimaryKey" parameterType="bizCustomerSubmitDetail">
+		update biz_customer_submit_detail 
+		<trim prefix="set" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
             <if test="itemId != null">item_id = #{itemId},</if>
+            <if test="submitRecordId != null">submit_record_id = #{submitRecordId},</if>
             <if test="itemRemark != null and itemRemark != ''">item_remark = #{itemRemark},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
-        </trim>
-        <where>id = #{id}</where>
-    </update>
+		</trim>
+		<where>id = #{id}</where>
+	</update>
 
 
 
-    <select id="selectAll" resultMap="bizCustomerPickRecordResultMap">
+    <select id="selectAll" resultMap="bizCustomerSubmitDetailResultMap">
         select <include refid="table_columns" />
-        from biz_customer_pick_record
+        from biz_customer_submit_detail
     </select>
 
-    <select id="select" resultMap="bizCustomerPickRecordResultMap">
+    <select id="select" resultMap="bizCustomerSubmitDetailResultMap">
         select <include refid="table_columns" />
-        from biz_customer_pick_record
+        from biz_customer_submit_detail
         <include refid="page_where" />
-    </select>
+	</select>
 
     <select id="getCount" resultType="int" >
-        select count(id) from biz_customer_pick_record
+        select count(id) from biz_customer_submit_detail
         <include refid="page_where" />
     </select>
 
 
-    <select id="getByPrimaryKey" resultMap="bizCustomerPickRecordResultMap" parameterType="Long" >
-        select <include refid="table_columns" />
-        from biz_customer_pick_record
-        where id = #{id}
-    </select>
+    <select id="getByPrimaryKey" resultMap="bizCustomerSubmitDetailResultMap" parameterType="Long" >
+		select <include refid="table_columns" />
+		from biz_customer_submit_detail
+		where id = #{id}
+	</select>
 	
 	<!-- 其他自定义SQL -->
 

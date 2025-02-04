@@ -25,7 +25,7 @@ public class GetItemDetailListResponse implements Serializable {
     /**
      * 总数据量
      */
-    private Integer totalNum;
+    private Long totalNum;
 
     @Data
     public static class ItemModel implements Serializable{
@@ -101,32 +101,10 @@ public class GetItemDetailListResponse implements Serializable {
          * 商品工艺
          */
         private String	itemCraft;
-        /**
-         * 一级标签ID
-         */
-        private Long	firstLabelId;
-        /**
-         * 二级标签ID
-         */
-        private Long	secondLabelId;
-        /**
-         * 商品备注
-         */
-        private String	itemRemark;
-        /**
-         * 年
-         */
-        private Integer	year;
-        /**
-         * 1 春；2 夏；3 秋；4 冬
-         */
-        private Integer	season;
+
+
 
 // ==================== 下面是计算出来的 ====================
-        /**
-         * 体积
-         */
-        private String itemVolume;
 
         /**
          * 美金--因为汇率，算得不太准
@@ -154,10 +132,39 @@ public class GetItemDetailListResponse implements Serializable {
         private String qtyIn40HC;
 
 // ==================== 下面是只显示不导出的 ====================
+
+        /**
+         * 一级标签ID
+         */
+        private Long	firstLabelId;
+        /**
+         * 一级标签名称
+         */
+        private String	firstLabelName;
+        /**
+         * 二级标签ID
+         */
+        private Long	secondLabelId;
+        /**
+         * 二级标签名称
+         */
+        private String	secondLabelName;
+        /**
+         * 年
+         */
+        private Integer	year;
+        /**
+         * 1 春；2 夏；3 秋；4 冬
+         */
+        private Integer	season;
         /**
          * 产品状态 1 上线；2 下线
          */
         private Integer	itemStatus;
+        /**
+         * 商品备注
+         */
+        private String	itemRemark;
         /**
          * 创建时间
          */

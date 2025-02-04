@@ -19,6 +19,12 @@ public class CustomerPickItemRequest implements Serializable {
      * 产品ID
      */
     private Long	itemId;
+
+    /**
+     * 商品备注
+     */
+    private String	itemRemark;
+
     /**
      * 是否喜欢 1 是，0 否
      */

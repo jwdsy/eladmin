@@ -2,36 +2,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="me.zhengjie.modules.business.repository.BizCustomerSubmitRecordMapper">
 	<resultMap type="bizCustomerSubmitRecord" id="bizCustomerSubmitRecordResultMap">
-		<result property="id" column="id"/>
-		<result property="userId" column="user_id"/>
-		<result property="itemIds" column="item_ids"/>
-		<result property="createTime" column="create_time"/>
-	</resultMap>
-	
-	<sql id="table_columns">
-		id,
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="table_columns">
+        id,
 		user_id,
-		item_ids,
 		create_time
     </sql>
-	<sql id="entity_properties">
-		#{id},
-		#{userId},
-		#{itemIds},
-		#{createTime}
-	</sql>
+    <sql id="entity_properties">
+        #{id},
+        #{userId},
+        #{createTime}
+    </sql>
 
     <!-- 使用like用法：columnName like concat('%',#columnName#,'%') -->
     <sql id="page_where">
         <trim prefix="where" prefixOverrides="and | or ">
             <if test="userId != null">and user_id = #{userId}</if>
-            <if test="itemIds != null and itemIds != ''">and item_ids = #{itemIds}</if>
             <if test="createTime != null">and create_time = #{createTime}</if>
         </trim>
     </sql>
 
 
-	<!-- 适用于主键自增类型 -->
+    <!-- 适用于主键自增类型 -->
 
     <insert id="insertSelective" parameterType="bizCustomerSubmitRecord">
         <selectKey resultType="Long" order="AFTER" keyProperty="id">
@@ -40,33 +36,30 @@
         insert into biz_customer_submit_record
         <trim prefix="(" suffix=")" suffixOverrides="," >
             <if test="userId != null">user_id,</if>
-            <if test="itemIds != null and itemIds != ''">item_ids,</if>
             <if test="createTime != null">create_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
             <if test="userId != null">#{userId},</if>
-            <if test="itemIds != null and itemIds != ''">#{itemIds},</if>
             <if test="createTime != null">#{createTime},</if>
         </trim>
-	</insert>
+    </insert>
 
 
 
-	<delete id="deleteByPrimaryKey" parameterType="Long">
-		delete from biz_customer_submit_record
-		where id = #{id}
-	</delete>
+    <delete id="deleteByPrimaryKey" parameterType="Long">
+        delete from biz_customer_submit_record
+        where id = #{id}
+    </delete>
 
 
-	<update id="updateByPrimaryKey" parameterType="bizCustomerSubmitRecord">
-		update biz_customer_submit_record 
-		<trim prefix="set" suffixOverrides=",">
+    <update id="updateByPrimaryKey" parameterType="bizCustomerSubmitRecord">
+        update biz_customer_submit_record
+        <trim prefix="set" suffixOverrides=",">
             <if test="userId != null">user_id = #{userId},</if>
-            <if test="itemIds != null and itemIds != ''">item_ids = #{itemIds},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
-		</trim>
-		<where>id = #{id}</where>
-	</update>
+        </trim>
+        <where>id = #{id}</where>
+    </update>
 
 
 
@@ -79,7 +72,7 @@
         select <include refid="table_columns" />
         from biz_customer_submit_record
         <include refid="page_where" />
-	</select>
+    </select>
 
     <select id="getCount" resultType="int" >
         select count(id) from biz_customer_submit_record
@@ -88,10 +81,10 @@
 
 
     <select id="getByPrimaryKey" resultMap="bizCustomerSubmitRecordResultMap" parameterType="Long" >
-		select <include refid="table_columns" />
-		from biz_customer_submit_record
-		where id = #{id}
-	</select>
+        select <include refid="table_columns" />
+        from biz_customer_submit_record
+        where id = #{id}
+    </select>
 	
 	<!-- 其他自定义SQL -->
 

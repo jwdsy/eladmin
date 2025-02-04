@@ -10,17 +10,17 @@ import lombok.ToString;
 
 
 /**
- * entity:BizCustomerSubmitRecord
+ * entity:BizCustomerSubmitDetail
  * 
  * @author wangpengfei
- * @date 2025-1-6
+ * @date 2025-1-24
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@TableName("biz_customer_submit_record")
-public class BizCustomerSubmitRecord implements Serializable {
+@TableName("biz_customer_submit_detail")
+public class BizCustomerSubmitDetail implements Serializable {
 	
       /**
        * 主键ID
@@ -30,6 +30,18 @@ public class BizCustomerSubmitRecord implements Serializable {
        * 用户ID
        */
       private Long	userId;
+      /**
+       * 商品ID
+       */
+      private Long	itemId;
+      /**
+       * 提交记录ID
+       */
+      private Long	submitRecordId;
+      /**
+       * 商品备注
+       */
+      private String	itemRemark;
       /**
        * 创建时间
        */
