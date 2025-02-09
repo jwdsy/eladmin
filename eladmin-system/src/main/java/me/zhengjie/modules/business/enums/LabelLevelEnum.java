@@ -34,7 +34,7 @@ public enum LabelLevelEnum {
 
     static {
         for (LabelLevelEnum s : EnumSet.allOf(LabelLevelEnum.class)) {
-            lookup.put(s.getCode(), s.name());
+            lookup.put(s.getCode(), s.getName());
         }
     }
 

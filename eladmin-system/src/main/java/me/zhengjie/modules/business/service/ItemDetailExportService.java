@@ -1,10 +1,9 @@
 package me.zhengjie.modules.business.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.spire.xls.CellRange;
-import com.spire.xls.ExcelPicture;
-import com.spire.xls.Workbook;
-import com.spire.xls.Worksheet;
+import com.fasterxml.jackson.core.JsonParser;
+import com.spire.xls.*;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NumberType;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.modules.business.domain.BizItemBaseRecord;
 import me.zhengjie.modules.business.enums.IsTypeInteger;
@@ -24,6 +23,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @Description ：description
@@ -76,17 +78,30 @@ public class ItemDetailExportService {
     private void exportExcel(List<GetItemDetailListResponse.ItemModel> itemModelList, Workbook workbook) throws IOException {
         //获取第一个工作表
         Worksheet sheet = workbook.getWorksheets().get(0);
+        CountDownLatch countDownLatch = new CountDownLatch(itemModelList.size());
+        ExecutorService executor = Executors.newFixedThreadPool(6);
         for (int i = 0; i < itemModelList.size(); i++) {
             GetItemDetailListResponse.ItemModel itemModel = itemModelList.get(i);
-            int rowIndex = FIRST_ROW_INDEX + i;
+            final int rowIndex = FIRST_ROW_INDEX + i;
             // 设置行高
             sheet.setRowHeight(rowIndex, ROW_HEIGHT);
 
-            int columnIndex = 1;
+            int columnIndex = 0;
+            columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemNo());
 
             columnIndex++;
-            setPicCell(sheet, rowIndex, columnIndex, itemModel.getItemPic());
+            final int finalColumnIndex = columnIndex;
+            executor.execute(() -> {
+                try {
+                    setPicCell(sheet, rowIndex, finalColumnIndex, itemModel.getItemPic());
+                }catch (Exception e){
+                    log.error("导出图片失败", e);
+                }finally {
+                    countDownLatch.countDown();
+                }
+            });
+//            setPicCell(sheet, rowIndex, columnIndex, itemModel.getItemPic());
 
             columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getDescription());
@@ -108,11 +123,13 @@ public class ItemDetailExportService {
                 setContentCell(sheet, rowIndex, columnIndex, String.valueOf(itemModel.getInnerBox()));
             }
 
-
             columnIndex++;
             if(null != itemModel.getOuterCtn()){
                 setContentCell(sheet, rowIndex, columnIndex, String.valueOf(itemModel.getOuterCtn()));
             }
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getWeightPieces());
 
             columnIndex++;
             if(null != itemModel.getMininumOrderQuantity()){
@@ -142,24 +159,46 @@ public class ItemDetailExportService {
 
             columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getQtyIn40HC());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getUnitPrice());
         }
+        try {
+            countDownLatch.await();
+        }catch (Exception e){
+            log.error("导出图片失败", e);
+        }
+//        countDownLatch.await();
     }
 
     private void setContentCell(Worksheet sheet, int rowIndex, int columnIndex, String content) {
+        CellRange cell = sheet.getCellRange(rowIndex, columnIndex);
+        // 设置单元格样式的对齐方式为居中
+        cell.getStyle().setHorizontalAlignment(HorizontalAlignType.Center);
+        cell.getStyle().setVerticalAlignment(VerticalAlignType.Center);
+        // 设置为文本格式
+        cell.setNumberFormat("@");
+        cell.borderAround(LineStyleType.Thin);
         if(null == content){
             return;
         }
-        CellRange cell = sheet.getCellRange(rowIndex, columnIndex);
         cell.setValue(content);
     }
 
     private void setPicCell(Worksheet sheet, int rowIndex, int columnIndex, String picUrl) {
+        CellRange cell = sheet.getCellRange(rowIndex, columnIndex);
+        cell.borderAround(LineStyleType.Thin);
         if(null == picUrl){
+            // todo:增加日志
             return;
         }
         // 设置列宽
         sheet.setColumnWidth(columnIndex, COLUMN_WIDTH);
         BufferedImage targetImage = downloadImage(picUrl);
+        if(null == targetImage){
+            // todo:增加日志
+            return;
+        }
         ExcelPicture excelPicture = sheet.getPictures().add(rowIndex, columnIndex, targetImage);
         int originalWidth = excelPicture.getWidth();
         int originalHeight = excelPicture.getHeight();
@@ -167,6 +206,7 @@ public class ItemDetailExportService {
         int desiredWidth = (int) (ROW_HEIGHT / aspectRatio); // 保持纵横比
         excelPicture.setWidth(desiredWidth);
         excelPicture.setHeight(ROW_HEIGHT);
+        // 压缩图片，值为40时，25张图片导出后文件大小为3.6M
         excelPicture.compress(40);
     }
 

@@ -74,6 +74,8 @@ public class ItemDetailController {
     @ApiOperation("导出产品列表")
     @AnonymousPostMapping(value = "/v1/exportItemDetailList")
     public void exportItemDetailList(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
+        servletResponse.setContentType("application/octet-stream");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
         itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
     }
 }

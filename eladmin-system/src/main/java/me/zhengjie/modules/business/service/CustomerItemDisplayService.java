@@ -65,6 +65,11 @@ public class CustomerItemDisplayService {
                 if(CollectionUtils.isEmpty(secondLabelList)){
                     secondLabelList = new ArrayList<>();
                 }
+                GetDisplayLabelListResponse.LabelModel labelModel = new GetDisplayLabelListResponse.LabelModel();
+                labelModel.setLabelId(label.getId());
+                labelModel.setLabelName(label.getLabelName());
+                labelModel.setLabelLevel(label.getLabelLevel());
+                secondLabelList.add(labelModel);
                 secondLabelMap.put(label.getFirstLabelId(), secondLabelList);
             }
         }

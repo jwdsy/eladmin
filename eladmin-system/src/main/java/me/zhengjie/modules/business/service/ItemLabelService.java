@@ -37,6 +37,13 @@ public class ItemLabelService {
 
     public CreateItemLabelResponse createItemLabel(CreateItemLabelRequest request){
         CreateItemLabelResponse response = new CreateItemLabelResponse();
+        if(LabelLevelEnum.LEVEL_2.getCode().equals(request.getLabelLevel())){
+            BizItemLabel firstLabel = bizItemLabelMapper.getByPrimaryKey(request.getFirstLabelId());
+            if(null == firstLabel){
+                throw new BadRequestException("一级标签不存在");
+            }
+        }
+
         if(null == request.getLabelId()){
             // 插入标签
             BizItemLabel record = new BizItemLabel();
@@ -46,6 +53,9 @@ public class ItemLabelService {
             record.setLabelStatus(LabelStatusEnum.OFFLINE.getCode());
             record.setCreateTime(new Date());
             record.setCreateUserId(request.getUserId());
+            if(LabelLevelEnum.LEVEL_2.getCode().equals(request.getLabelLevel())){
+                record.setFirstLabelId(request.getFirstLabelId());
+            }
             bizItemLabelMapper.insertSelective(record);
             response.setLabelLevel(request.getLabelLevel());
             response.setLabelId(record.getId());
@@ -60,6 +70,9 @@ public class ItemLabelService {
             itemLabel.setDescription(request.getDescription());
             itemLabel.setModifyUserId(request.getUserId());
             itemLabel.setLastModifyTime(new Date());
+            if(LabelLevelEnum.LEVEL_2.getCode().equals(request.getLabelLevel())){
+                itemLabel.setFirstLabelId(request.getFirstLabelId());
+            }
             bizItemLabelMapper.updateByPrimaryKey(itemLabel);
             response.setLabelLevel(request.getLabelLevel());
             response.setLabelId(itemLabel.getId());
@@ -71,6 +84,9 @@ public class ItemLabelService {
         BizItemLabel itemLabel = bizItemLabelMapper.getByPrimaryKey(request.getLabelId());
         if(null == itemLabel){
             throw new BadRequestException("未查到标签信息");
+        }
+        if(IsTypeInteger.YES.getCode().equals(itemLabel.getDelFlag())){
+            throw new BadRequestException("标签已被删除");
         }
         itemLabel.setLabelStatus(request.getLabelStatus());
         itemLabel.setLastModifyTime(new Date());

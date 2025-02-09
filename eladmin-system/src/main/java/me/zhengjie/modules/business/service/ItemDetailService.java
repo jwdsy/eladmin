@@ -63,6 +63,9 @@ public class ItemDetailService {
         if(null == record){
             throw new BadRequestException("未查到产品信息");
         }
+        if(IsTypeInteger.YES.getCode().equals(record.getDelFlag())){
+            throw new BadRequestException("该产品已被删除");
+        }
         record.setItemStatus(request.getItemStatus());
         record.setLastModifyTime(new Date());
         record.setModifyUserId(request.getUserId());
@@ -139,21 +142,21 @@ public class ItemDetailService {
             itemModel.setItemPic(record.getItemPic());
             itemModel.setDescription(record.getDescription());
             itemModel.setDeliveryPort(record.getDeliveryPort());
-            itemModel.setItemLength(BigDecimalUtil.convertToString(record.getItemLength()));
-            itemModel.setItemWidth(BigDecimalUtil.convertToString(record.getItemWidth()));
-            itemModel.setItemHeight(BigDecimalUtil.convertToString(record.getItemHeight()));
+            itemModel.setItemLength(BigDecimalUtil.convertToStrTowScale(record.getItemLength()));
+            itemModel.setItemWidth(BigDecimalUtil.convertToStrTowScale(record.getItemWidth()));
+            itemModel.setItemHeight(BigDecimalUtil.convertToStrTowScale(record.getItemHeight()));
             itemModel.setInnerBox(record.getInnerBox());
             itemModel.setOuterCtn(record.getOuterCtn());
-            itemModel.setWeightPieces(BigDecimalUtil.convertToString(record.getWeightPieces()));
+            itemModel.setWeightPieces(BigDecimalUtil.convertToStrTowScale(record.getWeightPieces()));
             itemModel.setMininumOrderQuantity(record.getMininumOrderQuantity());
-            itemModel.setCartonLength(BigDecimalUtil.convertToString(record.getCartonLength()));
-            itemModel.setCartonWidth(BigDecimalUtil.convertToString(record.getCartonWidth()));
-            itemModel.setCartonHeight(BigDecimalUtil.convertToString(record.getCartonHeight()));
-            itemModel.setUnitPrice(BigDecimalUtil.convertToString(record.getUnitPrice()));
+            itemModel.setCartonLength(BigDecimalUtil.convertToStrTowScale(record.getCartonLength()));
+            itemModel.setCartonWidth(BigDecimalUtil.convertToStrTowScale(record.getCartonWidth()));
+            itemModel.setCartonHeight(BigDecimalUtil.convertToStrTowScale(record.getCartonHeight()));
+            itemModel.setUnitPrice(BigDecimalUtil.convertToStrTowScale(record.getUnitPrice()));
             itemModel.setFactoryName(record.getFactoryName());
             itemModel.setItemCraft(record.getItemCraft());
 //            itemModel.setUnitPrice4Dollar();
-            BigDecimal cbmPerCTN = getCbmPerCTN(record.getItemLength(), record.getItemWidth(), record.getItemHeight());
+            BigDecimal cbmPerCTN = getCbmPerCTN(record.getCartonLength(), record.getCartonWidth(), record.getCartonHeight());
             if(!BigDecimalUtil.isEmpty(cbmPerCTN)){
                 itemModel.setCbmPerCTN(cbmPerCTN.toString());
             }
