@@ -50,6 +50,11 @@ public class GetDisplayItemListResponse implements Serializable {
         private Integer pickFlag;
 
         /**
+         * 用户喜欢备注
+         */
+        private String pickRemark;
+
+        /**
          * 商品长(cm)
          */
         private String itemLength;

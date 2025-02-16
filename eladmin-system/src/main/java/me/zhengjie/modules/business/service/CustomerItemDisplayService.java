@@ -100,7 +100,8 @@ public class CustomerItemDisplayService {
             queryWrapper.eq(BizItemBaseRecord::getSecondLabelId, request.getSecondLabelId());
         }
 
-        Set<Long> pickItemIdSet = getPickItemIdSet(request.getUserId());
+        Map<Long, String> pickItemIdMap = getPickItemMap(request.getUserId());
+        Set<Long> pickItemIdSet = pickItemIdMap.keySet();
         if(IsTypeInteger.YES.getCode().equals(request.getPickFlag())){
             // 没有用户挑选的产品，直接返回空
             if(CollectionUtils.isEmpty(pickItemIdSet)){
@@ -116,7 +117,7 @@ public class CustomerItemDisplayService {
                 .orderByDesc(BizItemBaseRecord::getId);
 
         // 2、分页查询数据
-        PageHelper.startPage(request.getPageNo(), request.getPageSize(), false);
+        PageHelper.startPage(request.getPageNo(), request.getPageSize());
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(queryWrapper);
 
         if(CollectionUtils.isEmpty(recordList)){
@@ -133,7 +134,12 @@ public class CustomerItemDisplayService {
             itemModel.setDescription(record.getDescription());
             itemModel.setItemPic(record.getItemPic());
             itemModel.setItemNo(record.getItemNo());
-            itemModel.setPickFlag(pickItemIdSet.contains(record.getId()) ? IsTypeInteger.YES.getCode() : IsTypeInteger.NO.getCode());
+            itemModel.setPickFlag(IsTypeInteger.NO.getCode());
+            if(pickItemIdSet.contains(record.getId())){
+                itemModel.setPickFlag(IsTypeInteger.YES.getCode());
+                itemModel.setPickRemark(pickItemIdMap.get(record.getId()));
+            }
+
             itemModel.setItemLength(BigDecimalUtil.convertToString(record.getItemLength()));
             itemModel.setItemWidth(BigDecimalUtil.convertToString(record.getItemWidth()));
             itemModel.setItemHeight(BigDecimalUtil.convertToString(record.getItemHeight()));
@@ -144,18 +150,17 @@ public class CustomerItemDisplayService {
         return response;
     }
 
-    private Set<Long> getPickItemIdSet(Long userId){
+    public Map<Long, String> getPickItemMap(Long userId){
         LambdaQueryWrapper<BizCustomerPickRecord> pickQueryWrapper = new LambdaQueryWrapper<>();
         pickQueryWrapper.eq(BizCustomerPickRecord::getUserId, userId);
         List<BizCustomerPickRecord> pickRecordList = bizCustomerPickRecordMapper.selectList(pickQueryWrapper);
-
-        Set<Long> pickItemIdSet = new HashSet<>();
+        Map<Long, String> pickRemarkMap = new HashMap<>();
         if(CollectionUtils.isEmpty(pickRecordList)){
-           return pickItemIdSet;
+           return pickRemarkMap;
         }
         for(BizCustomerPickRecord pickRecord : pickRecordList){
-            pickItemIdSet.add(pickRecord.getItemId());
+            pickRemarkMap.put(pickRecord.getItemId(), pickRecord.getItemRemark());
         }
-        return pickItemIdSet;
+        return pickRemarkMap;
     }
 }

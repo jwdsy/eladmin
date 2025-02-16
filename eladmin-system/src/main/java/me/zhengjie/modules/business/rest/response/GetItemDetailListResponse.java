@@ -103,7 +103,6 @@ public class GetItemDetailListResponse implements Serializable {
         private String	itemCraft;
 
 
-
 // ==================== 下面是计算出来的 ====================
 
         /**
@@ -130,6 +129,12 @@ public class GetItemDetailListResponse implements Serializable {
          * QTY IN 40HC(pcs)
          */
         private String qtyIn40HC;
+
+// ==================== 用户填写的备注 ====================
+        /**
+         * 用户填写的备注
+         */
+        private String pickRemark;
 
 // ==================== 下面是只显示不导出的 ====================
 

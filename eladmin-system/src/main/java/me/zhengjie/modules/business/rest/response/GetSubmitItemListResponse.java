@@ -32,9 +32,9 @@ public class GetSubmitItemListResponse implements Serializable {
         private Long recordId;
 
         /**
-         * 商品ID列表，以英文逗号分隔
+         * 商品编号列表
          */
-        private String	itemNos;
+        private String	itemNo;
 
         /**
          * 提交时间

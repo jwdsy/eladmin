@@ -79,7 +79,7 @@ public class ItemDetailExportService {
         //获取第一个工作表
         Worksheet sheet = workbook.getWorksheets().get(0);
         CountDownLatch countDownLatch = new CountDownLatch(itemModelList.size());
-        ExecutorService executor = Executors.newFixedThreadPool(6);
+        ExecutorService executor = Executors.newFixedThreadPool(3);
         for (int i = 0; i < itemModelList.size(); i++) {
             GetItemDetailListResponse.ItemModel itemModel = itemModelList.get(i);
             final int rowIndex = FIRST_ROW_INDEX + i;

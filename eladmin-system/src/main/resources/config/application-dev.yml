@@ -136,3 +136,9 @@ pagehelper:
   params: count=countSql
   reasonable: false
   supportMethodsArguments: false
+
+logging:
+  level:
+    com:
+      github:
+        pagehelper=DEBUG:

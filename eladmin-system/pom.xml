@@ -87,6 +87,19 @@
             <version>5.3.0</version>
         </dependency>
 
+        <!-- mybatis -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.4.6</version>
+        </dependency>
+
         <!-- 获取系统信息 -->
         <dependency>
             <groupId>com.github.oshi</groupId>

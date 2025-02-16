@@ -120,20 +120,6 @@
             <version>${druid.version}</version>
         </dependency>
 
-        <!-- mybatis -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.4.2</version>
-        </dependency>
-
-        <!-- 分页插件pagehelper -->
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper</artifactId>
-            <version>5.2.0</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/net.dreamlu/mica-ip2region -->
         <dependency>
             <groupId>net.dreamlu</groupId>
