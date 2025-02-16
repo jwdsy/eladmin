@@ -220,6 +220,14 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <id>iceblue</id>
+            <name>e-iceblue nexus</name>
+            <url>https://repo.e-iceblue.cn/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <pluginRepositories>

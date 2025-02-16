@@ -4,19 +4,20 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhengjie.annotation.rest.AnonymousPostMapping;
+import me.zhengjie.annotation.Log;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.CreateItemDetailResponse;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
 import me.zhengjie.modules.business.service.ItemDetailExportService;
 import me.zhengjie.modules.business.service.ItemDetailService;
+import me.zhengjie.utils.PageResult;
+import me.zhengjie.utils.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,8 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "管理：产品详情")
-@RequestMapping("/item/detail")
+@Api(tags = "管理：产品管理")
+@RequestMapping("/api/product")
 public class ItemDetailController {
 
     @Autowired
@@ -37,16 +38,36 @@ public class ItemDetailController {
     @Autowired
     private ItemDetailExportService itemDetailExportService;
 
+    @ApiOperation("导出产品列表")
+    @GetMapping(value = "/download")
+    @PreAuthorize("@el.check('product:list')")
+    public void exportItemDetailList(GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
+        itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
+    }
+
+    @ApiOperation("查询产品列表")
+    @GetMapping
+    @PreAuthorize("@el.check('product:list')")
+    public ResponseEntity<PageResult<GetItemDetailListResponse.ItemModel>> getItemDetailList(GetItemDetailListRequest request) throws Exception {
+        GetItemDetailListResponse response = itemDetailService.getItemDetailList(request);
+        PageResult<GetItemDetailListResponse.ItemModel> page = PageUtil.toPage(response.getItemList(), response.getTotalNum());
+        return new ResponseEntity<>(page, HttpStatus.OK);
+    }
+
+    @Log("创建/更新产品信息")
     @ApiOperation("创建/更新产品信息")
-    @AnonymousPostMapping(value = "/v1/createOrUpdateItemDetail")
-    public ResponseEntity<CreateItemDetailResponse> createOrUpdateItemDetail(@RequestBody CreateItemDetailRequest request) throws Exception {
+    @PostMapping
+    @PreAuthorize("@el.check('product:add')")
+    public ResponseEntity<CreateItemDetailResponse> createOrUpdateItemDetail(CreateItemDetailRequest request) throws Exception {
         CreateItemDetailResponse response = itemDetailService.createOrUpdateItemDetail(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Log("更新产品状态")
     @ApiOperation("更新产品状态")
-    @AnonymousPostMapping(value = "/v1/updateItemStatus")
-    public ResponseEntity<Object> updateItemStatus(@RequestBody UpdateItemStatusRequest request) throws Exception {
+    @PutMapping
+    @PreAuthorize("@el.check('product:edit')")
+    public ResponseEntity<Object> updateItemStatus(UpdateItemStatusRequest request) throws Exception {
         if(null == request.getItemId() || null == request.getItemStatus()){
             throw new BadRequestException("产品ID、状态不能为空");
         }
@@ -54,28 +75,15 @@ public class ItemDetailController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+    @Log("删除产品信息")
     @ApiOperation("删除产品信息")
-    @AnonymousPostMapping(value = "/v1/deleteItemDetail")
-    public ResponseEntity<Object> deleteItemDetail(@RequestBody DeleteItemDetailRequest request) throws Exception {
+    @DeleteMapping
+    @PreAuthorize("@el.check('product:del')")
+    public ResponseEntity<Object> deleteItemDetail(DeleteItemDetailRequest request) throws Exception {
         if(null == request.getItemId()){
             throw new BadRequestException("产品ID、状态不能为空");
         }
         itemDetailService.deleteItemDetail(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
-    }
-
-    @ApiOperation("查询产品列表")
-    @AnonymousPostMapping(value = "/v1/getItemDetailList")
-    public ResponseEntity<GetItemDetailListResponse> getItemDetailList(@RequestBody GetItemDetailListRequest request) throws Exception {
-        GetItemDetailListResponse response = itemDetailService.getItemDetailList(request);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @ApiOperation("导出产品列表")
-    @AnonymousPostMapping(value = "/v1/exportItemDetailList")
-    public void exportItemDetailList(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
-        servletResponse.setContentType("application/octet-stream");
-        servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
-        itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
     }
 }
