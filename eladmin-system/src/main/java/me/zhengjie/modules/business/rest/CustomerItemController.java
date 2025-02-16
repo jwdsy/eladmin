@@ -11,9 +11,12 @@ import me.zhengjie.modules.business.rest.response.GetDisplayItemListResponse;
 import me.zhengjie.modules.business.rest.response.GetDisplayLabelListResponse;
 import me.zhengjie.modules.business.service.CustomerItemDisplayService;
 import me.zhengjie.modules.business.service.CustomerItemPickService;
+import me.zhengjie.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "用户：顾客产品")
-@RequestMapping("/customer/item")
+@RequestMapping("/api/item")
 public class CustomerItemController {
     @Autowired
     private CustomerItemDisplayService customerItemDisplayService;
@@ -42,11 +45,11 @@ public class CustomerItemController {
     }
 
     @ApiOperation("获取展示产品列表")
-    @AnonymousPostMapping(value = "/v1/getCustomerItemList")
-    public ResponseEntity<GetDisplayItemListResponse> getDisplayItemList(@RequestBody GetDisplayItemListRequest request) throws Exception {
-        if(null == request.getUserId()){
-            throw new BadRequestException("用户ID不能为空");
-        }
+//    @GetMapping
+    @GetMapping(value = "/list")
+    @PreAuthorize("@el.check('product:list')")
+    public ResponseEntity<GetDisplayItemListResponse> getDisplayItemList(GetDisplayItemListRequest request) throws Exception {
+        request.setUserId(SecurityUtils.getCurrentUserId());
         GetDisplayItemListResponse response = customerItemDisplayService.getDisplayItemList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
