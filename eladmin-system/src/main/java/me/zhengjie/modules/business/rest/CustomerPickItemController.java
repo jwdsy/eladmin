@@ -5,11 +5,11 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.rest.AnonymousPostMapping;
+import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.GetDisplayPickItemListRequest;
-import me.zhengjie.modules.business.rest.request.GetSubmitItemListRequest;
+import me.zhengjie.modules.business.rest.request.GetSimpleSubmitItemListRequest;
 import me.zhengjie.modules.business.rest.request.GetSubmitRecordListRequest;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
-import me.zhengjie.modules.business.rest.response.GetSubmitItemListResponse;
 import me.zhengjie.modules.business.rest.response.GetSubmitRecordListResponse;
 import me.zhengjie.modules.business.service.CustomerPickManagerService;
 import me.zhengjie.modules.business.service.CustomerSubmitManagerService;
@@ -49,6 +49,11 @@ public class CustomerPickItemController {
     @ApiOperation("导出顾客喜欢的产品列表")
     @AnonymousPostMapping(value = "/v1/exportCustomerPickItemList")
     public void exportCustomerPickItemList(@RequestBody GetDisplayPickItemListRequest request, HttpServletResponse servletResponse) throws Exception {
+        // 查询条件对应的UserId
+        if(null == request.getCustomerUserId()){
+            throw new BadRequestException("用户ID不能为空");
+        }
+        customerPickManagerService.exportCustomerPickItemList(request, servletResponse.getOutputStream());
     }
 
     @ApiOperation("获取顾客提交记录列表")
@@ -58,10 +63,17 @@ public class CustomerPickItemController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @ApiOperation("获取顾客提交的产品列表")
-    @AnonymousPostMapping(value = "/v1/getCustomerSubmitItemList")
-    public ResponseEntity<GetItemDetailListResponse> getCustomerSubmitItemList(@RequestBody GetSubmitItemListRequest request) throws Exception {
-        customerSubmitManagerService.getCustomerSubmitItemList(request);
+    @ApiOperation("获取顾客单次提交的产品列表")
+    @AnonymousPostMapping(value = "/v1/getSimpleSubmitItemList")
+    public ResponseEntity<GetItemDetailListResponse> getSimpleSubmitItemList(@RequestBody GetSimpleSubmitItemListRequest request) throws Exception {
+        GetItemDetailListResponse response = customerSubmitManagerService.getSimpleSubmitItemList(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation("导出顾客单次提交的产品列表")
+    @AnonymousPostMapping(value = "/v1/exportSimpleSubmitItemList")
+    public ResponseEntity<GetItemDetailListResponse> exportSimpleSubmitItemList(@RequestBody GetSimpleSubmitItemListRequest request, HttpServletResponse servletResponse) throws Exception {
+        customerSubmitManagerService.exportSimpleSubmitItemList(request, servletResponse.getOutputStream());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

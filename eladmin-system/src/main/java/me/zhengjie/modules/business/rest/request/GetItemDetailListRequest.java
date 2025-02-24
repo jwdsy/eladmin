@@ -44,10 +44,10 @@ public class GetItemDetailListRequest implements Serializable {
     /**
      * 第几页，默认1
      */
-    private Integer pageNo = 1;
+    private Integer page = 1;
     /**
      * 每页数量，默认10
      */
-    private Integer pageSize = 10;
+    private Integer size = 10;
 
 }

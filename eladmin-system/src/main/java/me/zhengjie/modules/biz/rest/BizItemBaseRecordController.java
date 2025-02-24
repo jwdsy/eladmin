@@ -27,7 +27,7 @@ import java.util.Set;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "管理：产品管理")
+@Api(tags = "管理：产品管理-jpa版本")
 @RequestMapping("/api/biz/item")
 public class BizItemBaseRecordController {
 

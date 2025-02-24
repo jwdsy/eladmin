@@ -14,6 +14,6 @@ public class GetDisplayPickItemListRequest extends GetItemDetailListRequest impl
     /**
      * 用户ID
      */
-    private Long userId;
+    private Long customerUserId;
 
 }

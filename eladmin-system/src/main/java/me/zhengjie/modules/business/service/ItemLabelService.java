@@ -15,13 +15,16 @@ import me.zhengjie.modules.business.rest.request.DeleteItemLabelRequest;
 import me.zhengjie.modules.business.rest.request.GetItemLabelListRequest;
 import me.zhengjie.modules.business.rest.request.UpdateItemLabelStatusRequest;
 import me.zhengjie.modules.business.rest.response.CreateItemLabelResponse;
+import me.zhengjie.modules.business.rest.response.GetFirstLabelListResponse;
 import me.zhengjie.modules.business.rest.response.GetItemLabelListResponse;
+import me.zhengjie.utils.RedisUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description ：description
@@ -34,6 +37,8 @@ public class ItemLabelService {
     private static final Map<Long, String> labelNameMap = new HashMap<>();
     @Autowired
     private BizItemLabelMapper bizItemLabelMapper;
+    @Autowired
+    private RedisUtils redisUtils;
 
     public CreateItemLabelResponse createItemLabel(CreateItemLabelRequest request){
         CreateItemLabelResponse response = new CreateItemLabelResponse();
@@ -95,14 +100,7 @@ public class ItemLabelService {
     }
 
     public void deleteItemLabel(DeleteItemLabelRequest request){
-        BizItemLabel itemLabel = bizItemLabelMapper.getByPrimaryKey(request.getLabelId());
-        if(null == itemLabel){
-            throw new BadRequestException("未查到标签信息");
-        }
-        itemLabel.setDelFlag(IsTypeInteger.YES.getCode());
-        itemLabel.setLastModifyTime(new Date());
-        itemLabel.setModifyUserId(request.getUserId());
-        bizItemLabelMapper.updateByPrimaryKey(itemLabel);
+        bizItemLabelMapper.batchDeleteByIds(request.getLabelIdList(), request.getUserId());
     }
 
     public GetItemLabelListResponse getItemLabelList(GetItemLabelListRequest request){
@@ -134,6 +132,27 @@ public class ItemLabelService {
         return response;
     }
 
+    public GetFirstLabelListResponse getFirstLabelList(){
+        LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BizItemLabel::getLabelLevel, LabelLevelEnum.LEVEL_1.getCode());
+        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
+        List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
+        GetFirstLabelListResponse response = new GetFirstLabelListResponse();
+        List<GetFirstLabelListResponse.LabelModel> modelList = new ArrayList<>();
+        if(CollectionUtils.isEmpty(labelList)){
+            response.setLabelList(modelList);
+            return response;
+        }
+        for (BizItemLabel label : labelList){
+            GetFirstLabelListResponse.LabelModel labelModel = new GetFirstLabelListResponse.LabelModel();
+            labelModel.setLabelId(label.getId());
+            labelModel.setLabelName(label.getLabelName());
+            modelList.add(labelModel);
+        }
+        response.setLabelList(modelList);
+        return response;
+    }
+
     private LambdaQueryWrapper<BizItemLabel> getLabelListQueryWrapper(GetItemLabelListRequest request){
         // 组装查询条件
         LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
@@ -157,7 +176,7 @@ public class ItemLabelService {
         }
 
         // 按照级别正序排列，按照创建时间倒序排列
-        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getName());
+        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
         queryWrapper.orderByAsc(BizItemLabel::getLabelLevel)
                 .orderByDesc(BizItemLabel::getCreateTime);
         return queryWrapper;
@@ -166,6 +185,7 @@ public class ItemLabelService {
     private Map<Long, String> getFirstLabelMap(){
         LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BizItemLabel::getLabelLevel, LabelLevelEnum.LEVEL_1.getCode());
+        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
         List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
         if(CollectionUtils.isEmpty(labelList)){
             return new HashMap<>();
@@ -188,6 +208,16 @@ public class ItemLabelService {
         for (BizItemLabel label : labelList){
             labelNameMap.put(label.getId(), label.getLabelName());
         }
+        return labelNameMap;
+    }
+
+    public Map<Long, String> getLabelNameMapFromRedis(){
+        Map<Long, String> labelNameMap = (Map<Long, String>) redisUtils.get("labelNameMap");
+        if(!CollectionUtils.isEmpty(labelNameMap)){
+            return labelNameMap ;
+        }
+        labelNameMap = getLabelNameMap(IsTypeInteger.YES.getCode());
+        redisUtils.set("labelNameMap", labelNameMap, 30, TimeUnit.SECONDS);
         return labelNameMap;
     }
 

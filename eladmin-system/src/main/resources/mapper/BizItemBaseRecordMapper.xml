@@ -271,4 +271,17 @@
 	<!-- 其他自定义SQL -->
 
 
+    <update id="batchDeleteByIds" >
+        update biz_item_base_record
+        set del_flag = 1,
+            modify_user_id = #{userId},
+            last_modify_time = now()
+        <where>
+            id in
+            <foreach collection="idList" item="item" separator="," open="(" close=")" index="">
+                #{item}
+            </foreach>
+        </where>
+    </update>
+
 </mapper>

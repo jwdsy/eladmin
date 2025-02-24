@@ -2,6 +2,7 @@ package me.zhengjie.modules.business.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.zhengjie.modules.business.domain.BizItemLabel;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface BizItemLabelMapper extends BaseMapper<BizItemLabel> {
     Integer updateByPrimaryKey(BizItemLabel record);
 
 
-
+    Integer batchDeleteByIds(@Param("idList") List<Long>  idList, @Param("userId") Long userId);
 
 
 

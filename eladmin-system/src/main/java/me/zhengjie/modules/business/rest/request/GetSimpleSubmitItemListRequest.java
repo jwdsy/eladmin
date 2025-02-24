@@ -10,11 +10,7 @@ import java.io.Serializable;
  * @Date ：created in 2025/1/17
  */
 @Data
-public class GetSubmitItemListRequest implements Serializable {
-    /**
-     * 用户ID
-     */
-    private Long userId;
+public class GetSimpleSubmitItemListRequest implements Serializable {
 
     /**
      * 提交ID

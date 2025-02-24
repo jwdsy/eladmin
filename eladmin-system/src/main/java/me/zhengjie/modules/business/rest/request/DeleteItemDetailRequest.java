@@ -3,6 +3,7 @@ package me.zhengjie.modules.business.rest.request;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Description ：description
@@ -14,7 +15,7 @@ public class DeleteItemDetailRequest implements Serializable {
     /**
      * 商品ID
      */
-    private Long	itemId;
+    private List<Long> itemIdList;
 
     /**
      * 用户ID

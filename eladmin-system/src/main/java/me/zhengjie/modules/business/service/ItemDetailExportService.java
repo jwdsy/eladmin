@@ -47,6 +47,10 @@ public class ItemDetailExportService {
 
     public void exportItemDetailList(GetItemDetailListRequest request, OutputStream out) throws Exception {
         List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(request);
+        exportItemDetailList(itemModelList, out);
+    }
+
+    public void exportItemDetailList(List<GetItemDetailListResponse.ItemModel> itemModelList, OutputStream out) throws Exception {
         if(CollectionUtils.isEmpty(itemModelList)){
             return;
         }
@@ -66,7 +70,6 @@ public class ItemDetailExportService {
             }
             workbook.dispose();
         }
-
     }
 
     private List<GetItemDetailListResponse.ItemModel> getItemModelList(GetItemDetailListRequest request) {
@@ -162,6 +165,9 @@ public class ItemDetailExportService {
 
             columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getUnitPrice());
+
+            columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getPickRemark());
         }
         try {
             countDownLatch.await();

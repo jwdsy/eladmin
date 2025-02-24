@@ -73,28 +73,21 @@ public class ItemDetailService {
     }
 
     public void deleteItemDetail(DeleteItemDetailRequest request){
-        BizItemBaseRecord record = bizItemBaseRecordMapper.getByPrimaryKey(request.getItemId());
-        if(null == record){
-            throw new BadRequestException("未查到产品信息");
-        }
-        record.setDelFlag(IsTypeInteger.YES.getCode());
-        record.setLastModifyTime(new Date());
-        record.setModifyUserId(request.getUserId());
-        bizItemBaseRecordMapper.updateByPrimaryKey(record);
+        bizItemBaseRecordMapper.batchDeleteByIds(request.getItemIdList(), request.getUserId());
     }
 
     public GetItemDetailListResponse getItemDetailList(GetItemDetailListRequest request){
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = getItemListQueryWrapper(request);
         // 2、分页查询
-        PageHelper.startPage(request.getPageNo(), request.getPageSize(), true);
+        PageHelper.startPage(request.getPage(), request.getSize(), true);
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(queryWrapper);
         PageInfo<BizItemBaseRecord> pageInfo = new PageInfo<>(recordList);
 
         // 3、封装返回结果
         List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(recordList,
                 // 第一页就从数据库取标签
-                Integer.valueOf(1).equals(request.getPageNo()) ? IsTypeInteger.YES.getCode() : IsTypeInteger.NO.getCode());
+                Integer.valueOf(1).equals(request.getPage()) ? IsTypeInteger.YES.getCode() : IsTypeInteger.NO.getCode());
         GetItemDetailListResponse response = new GetItemDetailListResponse();
         response.setItemList(itemModelList);
         response.setTotalNum(pageInfo.getTotal());

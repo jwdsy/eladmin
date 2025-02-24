@@ -2,6 +2,7 @@ package me.zhengjie.modules.business.repository;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.zhengjie.modules.business.domain.BizItemBaseRecord;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,6 +29,8 @@ public interface BizItemBaseRecordMapper extends BaseMapper<BizItemBaseRecord> {
 
 
 
+
+    Integer batchDeleteByIds(@Param("idList") List<Long>  idList, @Param("userId") Long userId);
 
 
 

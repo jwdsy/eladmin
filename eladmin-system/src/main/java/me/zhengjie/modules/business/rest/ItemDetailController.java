@@ -5,18 +5,19 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.annotation.rest.AnonymousPostMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.CreateItemDetailResponse;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
 import me.zhengjie.modules.business.service.ItemDetailExportService;
 import me.zhengjie.modules.business.service.ItemDetailService;
-import me.zhengjie.utils.PageResult;
-import me.zhengjie.utils.PageUtil;
+import me.zhengjie.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -39,51 +40,63 @@ public class ItemDetailController {
     private ItemDetailExportService itemDetailExportService;
 
     @ApiOperation("导出产品列表")
-    @GetMapping(value = "/download")
+    @PostMapping(value = "/v1/exportItemDetailList")
     @PreAuthorize("@el.check('product:list')")
-    public void exportItemDetailList(GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
+    public void exportItemDetailList(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
         itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
     }
 
     @ApiOperation("查询产品列表")
-    @GetMapping
+    @PostMapping(value = "/v1/getItemDetailList")
     @PreAuthorize("@el.check('product:list')")
-    public ResponseEntity<PageResult<GetItemDetailListResponse.ItemModel>> getItemDetailList(GetItemDetailListRequest request) throws Exception {
+    public ResponseEntity<GetItemDetailListResponse> getItemDetailList(@RequestBody GetItemDetailListRequest request) throws Exception {
         GetItemDetailListResponse response = itemDetailService.getItemDetailList(request);
-        PageResult<GetItemDetailListResponse.ItemModel> page = PageUtil.toPage(response.getItemList(), response.getTotalNum());
-        return new ResponseEntity<>(page, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Log("创建/更新产品信息")
     @ApiOperation("创建/更新产品信息")
-    @PostMapping
+    @PostMapping(value = "/v1/createOrUpdateItemDetail")
     @PreAuthorize("@el.check('product:add')")
-    public ResponseEntity<CreateItemDetailResponse> createOrUpdateItemDetail(CreateItemDetailRequest request) throws Exception {
+    public ResponseEntity<CreateItemDetailResponse> createOrUpdateItemDetail(@RequestBody CreateItemDetailRequest request) throws Exception {
+        request.setUserId(this.checkUserId(request.getUserId()));
         CreateItemDetailResponse response = itemDetailService.createOrUpdateItemDetail(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Log("更新产品状态")
     @ApiOperation("更新产品状态")
-    @PutMapping
+    @PostMapping(value = "/v1/updateItemStatus")
     @PreAuthorize("@el.check('product:edit')")
-    public ResponseEntity<Object> updateItemStatus(UpdateItemStatusRequest request) throws Exception {
+    public ResponseEntity<Object> updateItemStatus(@RequestBody UpdateItemStatusRequest request) throws Exception {
         if(null == request.getItemId() || null == request.getItemStatus()){
             throw new BadRequestException("产品ID、状态不能为空");
         }
+        request.setUserId(this.checkUserId(request.getUserId()));
         itemDetailService.updateItemStatus(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @Log("删除产品信息")
     @ApiOperation("删除产品信息")
-    @DeleteMapping
+    @PostMapping(value = "/v1/deleteItemDetail")
     @PreAuthorize("@el.check('product:del')")
-    public ResponseEntity<Object> deleteItemDetail(DeleteItemDetailRequest request) throws Exception {
-        if(null == request.getItemId()){
-            throw new BadRequestException("产品ID、状态不能为空");
+    public ResponseEntity<Object> deleteItemDetail(@RequestBody DeleteItemDetailRequest request) throws Exception {
+        if(CollectionUtils.isEmpty(request.getItemIdList())){
+            throw new BadRequestException("产品ID不能为空");
         }
+        request.setUserId(this.checkUserId(request.getUserId()));
         itemDetailService.deleteItemDetail(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    public Long checkUserId(Long userId){
+        if(null == userId){
+            userId = SecurityUtils.getCurrentUserId();
+        }
+        if(null == userId){
+            throw new BadRequestException("用户ID不能为空");
+        }
+        return userId;
     }
 }
