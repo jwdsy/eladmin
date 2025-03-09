@@ -39,6 +39,16 @@ public class GetSubmitRecordListResponse implements Serializable {
          * 提交记录时间
          */
         private Date submitTime;
+
+        /**
+         * 用户ID
+         */
+        private Long userId;
+
+        /**
+         * 用户名称
+         */
+        private String userName;
     }
 
 }

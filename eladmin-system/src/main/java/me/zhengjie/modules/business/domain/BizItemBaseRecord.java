@@ -36,6 +36,10 @@ public class BizItemBaseRecord implements Serializable {
        */
       private String	itemPic;
       /**
+       * 商品缩略图片
+       */
+      private String	itemCompressPic;
+      /**
        * 标签描述
        */
       private String	description;

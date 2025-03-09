@@ -9,8 +9,8 @@ import java.util.Map;
 
 public enum LabelLevelEnum {
 
-    LEVEL_1(1, "一级标签"),
-    LEVEL_2(2, "二级标签"),
+    LEVEL_1(1, "一级"),
+    LEVEL_2(2, "二级"),
 
 
 

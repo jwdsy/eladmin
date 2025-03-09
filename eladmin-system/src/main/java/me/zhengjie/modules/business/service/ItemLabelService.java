@@ -1,10 +1,12 @@
 package me.zhengjie.modules.business.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.modules.business.consts.RedisKeyConstant;
 import me.zhengjie.modules.business.domain.BizItemLabel;
 import me.zhengjie.modules.business.enums.IsTypeInteger;
 import me.zhengjie.modules.business.enums.LabelLevelEnum;
@@ -34,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class ItemLabelService {
-    private static final Map<Long, String> labelNameMap = new HashMap<>();
     @Autowired
     private BizItemLabelMapper bizItemLabelMapper;
     @Autowired
@@ -82,6 +83,8 @@ public class ItemLabelService {
             response.setLabelLevel(request.getLabelLevel());
             response.setLabelId(itemLabel.getId());
         }
+
+        this.deleteLabelRedisData();
         return response;
     }
 
@@ -97,10 +100,12 @@ public class ItemLabelService {
         itemLabel.setLastModifyTime(new Date());
         itemLabel.setModifyUserId(request.getUserId());
         bizItemLabelMapper.updateByPrimaryKey(itemLabel);
+        this.deleteLabelRedisData();
     }
 
     public void deleteItemLabel(DeleteItemLabelRequest request){
         bizItemLabelMapper.batchDeleteByIds(request.getLabelIdList(), request.getUserId());
+        this.deleteLabelRedisData();
     }
 
     public GetItemLabelListResponse getItemLabelList(GetItemLabelListRequest request){
@@ -197,28 +202,37 @@ public class ItemLabelService {
         return labelMap;
     }
 
-    public Map<Long, String> getLabelNameMap(Integer isFromDb){
-        if(IsTypeInteger.NO.getCode().equals(isFromDb)){
-            return labelNameMap;
-        }
-        List<BizItemLabel> labelList = bizItemLabelMapper.selectAll();
-        if(CollectionUtils.isEmpty(labelList)){
-            return labelNameMap;
-        }
+    public Map<Long, String> getLabelNameMap(){
+        Map<Long, String> labelNameMap = new HashMap<>();
+        LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
+        List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
         for (BizItemLabel label : labelList){
             labelNameMap.put(label.getId(), label.getLabelName());
         }
+        log.info("从数据库中获取标签名称 labelNameMap = {}", JSON.toJSON(labelNameMap));
         return labelNameMap;
     }
 
     public Map<Long, String> getLabelNameMapFromRedis(){
-        Map<Long, String> labelNameMap = (Map<Long, String>) redisUtils.get("labelNameMap");
+        String redisKey = getLabelNameMapRedisKey();
+        Map<Long, String> labelNameMap = (Map<Long, String>) redisUtils.get(redisKey);
         if(!CollectionUtils.isEmpty(labelNameMap)){
+            log.info("从redis中获取标签名称 redisKey = {}", redisKey);
             return labelNameMap ;
         }
-        labelNameMap = getLabelNameMap(IsTypeInteger.YES.getCode());
+        labelNameMap = getLabelNameMap();
         redisUtils.set("labelNameMap", labelNameMap, 30, TimeUnit.SECONDS);
         return labelNameMap;
+    }
+
+    private void deleteLabelRedisData(){
+        String labelNameMapRedisKey = getLabelNameMapRedisKey();
+        redisUtils.del(labelNameMapRedisKey);
+    }
+
+    private String getLabelNameMapRedisKey(){
+        return RedisKeyConstant.ITEM_LABEL_NAME_MAP;
     }
 
 }

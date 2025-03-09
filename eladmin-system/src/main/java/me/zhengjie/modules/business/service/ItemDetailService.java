@@ -126,7 +126,7 @@ public class ItemDetailService {
             return new ArrayList<>();
         }
 
-        Map<Long, String> labelNameMap = itemLabelService.getLabelNameMap(isFromDb);
+        Map<Long, String> labelNameMap = itemLabelService.getLabelNameMapFromRedis();
         List<GetItemDetailListResponse.ItemModel> itemModelList = new ArrayList<>();
         for (BizItemBaseRecord record : recordList){
             GetItemDetailListResponse.ItemModel itemModel = new GetItemDetailListResponse.ItemModel();

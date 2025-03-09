@@ -5,6 +5,7 @@
         <result property="id" column="id"/>
         <result property="itemNo" column="item_no"/>
         <result property="itemPic" column="item_pic"/>
+        <result property="itemCompressPic" column="item_compress_pic"/>
         <result property="description" column="description"/>
         <result property="deliveryPort" column="delivery_port"/>
         <result property="itemLength" column="item_length"/>
@@ -37,6 +38,7 @@
         id,
 		item_no,
 		item_pic,
+		item_compress_pic,
 		description,
 		delivery_port,
 		item_length,
@@ -68,6 +70,7 @@
         #{id},
         #{itemNo},
         #{itemPic},
+        #{itemCompressPic},
         #{description},
         #{deliveryPort},
         #{itemLength},
@@ -101,6 +104,7 @@
         <trim prefix="where" prefixOverrides="and | or ">
             <if test="itemNo != null and itemNo != ''">and item_no = #{itemNo}</if>
             <if test="itemPic != null and itemPic != ''">and item_pic = #{itemPic}</if>
+            <if test="itemCompressPic != null and itemCompressPic != ''">and item_compress_pic = #{itemCompressPic}</if>
             <if test="description != null and description != ''">and description = #{description}</if>
             <if test="deliveryPort != null and deliveryPort != ''">and delivery_port = #{deliveryPort}</if>
             <if test="itemLength != null">and item_length = #{itemLength}</if>
@@ -141,6 +145,7 @@
         <trim prefix="(" suffix=")" suffixOverrides="," >
             <if test="itemNo != null and itemNo != ''">item_no,</if>
             <if test="itemPic != null and itemPic != ''">item_pic,</if>
+            <if test="itemCompressPic != null and itemCompressPic != ''">item_compress_pic,</if>
             <if test="description != null and description != ''">description,</if>
             <if test="deliveryPort != null and deliveryPort != ''">delivery_port,</if>
             <if test="itemLength != null">item_length,</if>
@@ -171,6 +176,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides="," >
             <if test="itemNo != null and itemNo != ''">#{itemNo},</if>
             <if test="itemPic != null and itemPic != ''">#{itemPic},</if>
+            <if test="itemCompressPic != null and itemCompressPic != ''">#{itemCompressPic},</if>
             <if test="description != null and description != ''">#{description},</if>
             <if test="deliveryPort != null and deliveryPort != ''">#{deliveryPort},</if>
             <if test="itemLength != null">#{itemLength},</if>
@@ -213,6 +219,7 @@
         <trim prefix="set" suffixOverrides=",">
             <if test="itemNo != null and itemNo != ''">item_no = #{itemNo},</if>
             <if test="itemPic != null and itemPic != ''">item_pic = #{itemPic},</if>
+            <if test="itemCompressPic != null and itemCompressPic != ''">item_compress_pic = #{itemCompressPic},</if>
             <if test="description != null and description != ''">description = #{description},</if>
             <if test="deliveryPort != null and deliveryPort != ''">delivery_port = #{deliveryPort},</if>
             <if test="itemLength != null">item_length = #{itemLength},</if>

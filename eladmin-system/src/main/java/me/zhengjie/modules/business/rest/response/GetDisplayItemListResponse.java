@@ -41,6 +41,10 @@ public class GetDisplayItemListResponse implements Serializable {
          */
         private String	itemPic;
         /**
+         * 产品缩略图片
+         */
+        private String	itemCompressPic;
+        /**
          * 标签描述
          */
         private String	description;

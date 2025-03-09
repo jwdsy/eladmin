@@ -3,6 +3,7 @@ package me.zhengjie.modules.business.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.domain.BizCustomerSubmitDetail;
@@ -16,9 +17,12 @@ import me.zhengjie.modules.business.rest.request.GetSimpleSubmitItemListRequest;
 import me.zhengjie.modules.business.rest.request.GetSubmitRecordListRequest;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
 import me.zhengjie.modules.business.rest.response.GetSubmitRecordListResponse;
+import me.zhengjie.modules.system.service.UserService;
+import me.zhengjie.modules.system.service.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.OutputStream;
@@ -42,6 +46,8 @@ public class CustomerSubmitManagerService {
     private CustomerPickManagerService customerPickManagerService;
     @Autowired
     private ItemDetailExportService itemDetailExportService;
+    @Autowired
+    private UserService userService;
 
     public GetSubmitRecordListResponse getCustomerSubmitRecordList(GetSubmitRecordListRequest request){
         LambdaQueryWrapper<BizCustomerSubmitRecord> queryWrapper = new LambdaQueryWrapper<>();
@@ -57,11 +63,24 @@ public class CustomerSubmitManagerService {
         List<BizCustomerSubmitRecord> recordList = bizCustomerSubmitRecordMapper.selectList(queryWrapper);
 
         List<GetSubmitRecordListResponse.SubmitModel> modelList = new ArrayList<>();
+        Map<Long, String> userNameMap = new HashMap<>();
         if(!CollectionUtils.isEmpty(recordList)){
             for (BizCustomerSubmitRecord record : recordList) {
                 GetSubmitRecordListResponse.SubmitModel model = new GetSubmitRecordListResponse.SubmitModel();
                 model.setRecordId(record.getId());
                 model.setSubmitTime(record.getCreateTime());
+                Long userId = record.getUserId();
+                model.setUserId(userId);
+                if(StringUtil.isEmpty(userNameMap.get(userId))){
+                    UserDto userDto = userService.findById(userId);
+                    if(null != userDto){
+                        model.setUserName(userDto.getUsername());
+                        userNameMap.put(userId, userDto.getUsername());
+                    }
+                }else {
+                    model.setUserName(userNameMap.get(userId));
+                }
+
                 modelList.add(model);
             }
         }
@@ -74,7 +93,7 @@ public class CustomerSubmitManagerService {
     }
 
     public GetItemDetailListResponse getSimpleSubmitItemList(GetSimpleSubmitItemListRequest request){
-        Map<Long, String> pickRemarkMap = getSubmitRecordList(request);
+        Map<Long, String> pickRemarkMap = getSubmitRemarkMap(request);
 
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> ItemQueryWrapper = new LambdaQueryWrapper<>();
@@ -95,7 +114,7 @@ public class CustomerSubmitManagerService {
     }
 
     public void exportSimpleSubmitItemList(GetSimpleSubmitItemListRequest request, OutputStream out) throws Exception {
-        Map<Long, String> pickRemarkMap = getSubmitRecordList(request);
+        Map<Long, String> pickRemarkMap = getSubmitRemarkMap(request);
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> ItemQueryWrapper = new LambdaQueryWrapper<>();
         ItemQueryWrapper.in(BizItemBaseRecord::getId, pickRemarkMap.keySet())
@@ -107,7 +126,7 @@ public class CustomerSubmitManagerService {
         itemDetailExportService.exportItemDetailList(itemModelList, out);
     }
 
-    public Map<Long, String> getSubmitRecordList(GetSimpleSubmitItemListRequest request){
+    public Map<Long, String> getSubmitRemarkMap(GetSimpleSubmitItemListRequest request){
         if(null == request.getSubmitId()){
             throw new BadRequestException("提交ID不能为空");
         }
