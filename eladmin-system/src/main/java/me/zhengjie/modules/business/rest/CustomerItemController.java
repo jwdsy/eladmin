@@ -46,7 +46,9 @@ public class CustomerItemController {
     @GetMapping(value = "/list")
     @PreAuthorize("@el.check('product:list')")
     public ResponseEntity<GetDisplayItemListResponse> getDisplayItemList(GetDisplayItemListRequest request) throws Exception {
-        request.setUserId(SecurityUtils.getCurrentUserId());
+        if(null == request.getUserId()){
+            request.setUserId(SecurityUtils.getCurrentUserId());
+        }
         GetDisplayItemListResponse response = customerItemDisplayService.getDisplayItemList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -54,7 +56,9 @@ public class CustomerItemController {
     @ApiOperation("顾客选择喜欢的产品")
     @PostMapping(value = "/pick")
     public ResponseEntity<Object> customerPickItem(CustomerPickItemRequest request) throws Exception {
-        request.setUserId(SecurityUtils.getCurrentUserId());
+        if(null == request.getUserId()){
+            request.setUserId(SecurityUtils.getCurrentUserId());
+        }
         customerItemPickService.customerPickItem(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
@@ -62,7 +66,9 @@ public class CustomerItemController {
     @ApiOperation("顾客取消全部喜欢的产品")
     @PostMapping(value = "/clean")
     public ResponseEntity<Object> cancelAllPickItems(CancelAllPickItemsRequest request) throws Exception {
-        request.setUserId(SecurityUtils.getCurrentUserId());
+        if(null == request.getUserId()){
+            request.setUserId(SecurityUtils.getCurrentUserId());
+        }
         customerItemPickService.cancelAllPickItems(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
@@ -70,7 +76,9 @@ public class CustomerItemController {
     @ApiOperation("顾客提交喜欢的产品")
     @PostMapping(value = "/submit")
     public ResponseEntity<Object> customerSubmitItem(CustomerSubmitItemRequest request) throws Exception {
-        request.setUserId(SecurityUtils.getCurrentUserId());
+        if(null == request.getUserId()){
+            request.setUserId(SecurityUtils.getCurrentUserId());
+        }
         customerItemPickService.customerSubmitItem(request);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }

@@ -132,8 +132,8 @@ public class CustomerItemDisplayService {
             itemModel.setItemId(record.getId());
             itemModel.setItemNo(record.getItemNo());
             itemModel.setDescription(record.getDescription());
-            itemModel.setItemPic(record.getItemPic());
-            itemModel.setItemCompressPic(record.getItemCompressPic());
+            itemModel.setItemPic(record.getItemCompressPic());
+//            itemModel.setItemCompressPic(record.getItemCompressPic());
             itemModel.setItemNo(record.getItemNo());
             itemModel.setPickFlag(IsTypeInteger.NO.getCode());
             if(pickItemIdSet.contains(record.getId())){
