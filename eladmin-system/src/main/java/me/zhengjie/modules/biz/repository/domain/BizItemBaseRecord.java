@@ -4,11 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import me.zhengjie.base.BaseEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,11 +23,10 @@ import java.util.Date;
 @Setter
 @ToString
 @Table(name = "biz_item_base_record")
-public class BizItemBaseRecord extends BaseEntity implements Serializable {
+public class BizItemBaseRecord implements Serializable {
 
     @Id
     @Column(name = "id")
-    @NotNull(groups = Update.class)
     @ApiModelProperty(value = "ID", hidden = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
