@@ -64,7 +64,7 @@ public class BizItemBaseRecordController {
     @ApiOperation("更新产品状态")
     @PutMapping
     @PreAuthorize("@el.check('product:edit')")
-    public ResponseEntity<Object> updateBizItem(@Validated(BizItemBaseRecord.Update.class) @RequestBody BizItemBaseRecord resources) throws Exception {
+    public ResponseEntity<Object> updateBizItem(@RequestBody BizItemBaseRecord resources) throws Exception {
         bizItemBaseRecordService.update(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
