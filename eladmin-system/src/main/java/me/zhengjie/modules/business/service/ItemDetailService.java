@@ -85,9 +85,7 @@ public class ItemDetailService {
         PageInfo<BizItemBaseRecord> pageInfo = new PageInfo<>(recordList);
 
         // 3、封装返回结果
-        List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(recordList,
-                // 第一页就从数据库取标签
-                Integer.valueOf(1).equals(request.getPage()) ? IsTypeInteger.YES.getCode() : IsTypeInteger.NO.getCode());
+        List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(recordList);
         GetItemDetailListResponse response = new GetItemDetailListResponse();
         response.setItemList(itemModelList);
         response.setTotalNum(pageInfo.getTotal());
@@ -121,7 +119,7 @@ public class ItemDetailService {
         return queryWrapper;
     }
 
-    public List<GetItemDetailListResponse.ItemModel> getItemModelList(List<BizItemBaseRecord> recordList, Integer isFromDb){
+    public List<GetItemDetailListResponse.ItemModel> getItemModelList(List<BizItemBaseRecord> recordList){
         if(CollectionUtils.isEmpty(recordList)){
             return new ArrayList<>();
         }

@@ -98,7 +98,7 @@ public class CustomerSubmitManagerService {
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> ItemQueryWrapper = new LambdaQueryWrapper<>();
         ItemQueryWrapper.in(BizItemBaseRecord::getId, pickRemarkMap.keySet())
-                .orderByAsc(BizItemBaseRecord::getId);
+                .orderByAsc(BizItemBaseRecord::getItemNo);
         // 2、分页查询
         PageHelper.startPage(request.getPageNo(), request.getPageSize(), true);
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(ItemQueryWrapper);
@@ -118,7 +118,7 @@ public class CustomerSubmitManagerService {
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> ItemQueryWrapper = new LambdaQueryWrapper<>();
         ItemQueryWrapper.in(BizItemBaseRecord::getId, pickRemarkMap.keySet())
-                .orderByAsc(BizItemBaseRecord::getId);
+                .orderByAsc(BizItemBaseRecord::getItemNo);
         // 2、查询
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(ItemQueryWrapper);
         // 3、封装返回结果

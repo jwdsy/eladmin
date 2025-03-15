@@ -75,7 +75,7 @@ public class ItemDetailExportService {
     private List<GetItemDetailListResponse.ItemModel> getItemModelList(GetItemDetailListRequest request) {
         LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = itemDetailService.getItemListQueryWrapper(request);
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(queryWrapper);
-        return itemDetailService.getItemModelList(recordList, IsTypeInteger.YES.getCode());
+        return itemDetailService.getItemModelList(recordList);
     }
 
     private void exportExcel(List<GetItemDetailListResponse.ItemModel> itemModelList, Workbook workbook) throws IOException {
@@ -83,6 +83,10 @@ public class ItemDetailExportService {
         Worksheet sheet = workbook.getWorksheets().get(0);
         CountDownLatch countDownLatch = new CountDownLatch(itemModelList.size());
         ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        CellRange cell = sheet.getCellRange(7, 17);
+        cell.setText("hahahh");
+
         for (int i = 0; i < itemModelList.size(); i++) {
             GetItemDetailListResponse.ItemModel itemModel = itemModelList.get(i);
             final int rowIndex = FIRST_ROW_INDEX + i;

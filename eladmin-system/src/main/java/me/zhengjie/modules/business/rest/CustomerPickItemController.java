@@ -73,6 +73,8 @@ public class CustomerPickItemController {
     @ApiOperation("导出顾客单次提交的产品列表")
     @AnonymousPostMapping(value = "/v1/exportSimpleSubmitItemList")
     public ResponseEntity<GetItemDetailListResponse> exportSimpleSubmitItemList(@RequestBody GetSimpleSubmitItemListRequest request, HttpServletResponse servletResponse) throws Exception {
+        servletResponse.setContentType("application/octet-stream");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
         customerSubmitManagerService.exportSimpleSubmitItemList(request, servletResponse.getOutputStream());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }

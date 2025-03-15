@@ -82,7 +82,7 @@ public class CustomerPickManagerService {
     }
 
     public List<GetItemDetailListResponse.ItemModel> getItemModelList(List<BizItemBaseRecord> recordList, Map<Long, String> pickRemarkMap){
-        List<GetItemDetailListResponse.ItemModel> itemModelList = itemDetailService.getItemModelList(recordList, IsTypeInteger.YES.getCode());
+        List<GetItemDetailListResponse.ItemModel> itemModelList = itemDetailService.getItemModelList(recordList);
         for (GetItemDetailListResponse.ItemModel itemModel : itemModelList){
             itemModel.setPickRemark(pickRemarkMap.get(itemModel.getItemId()));
         }
