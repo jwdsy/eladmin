@@ -20,6 +20,7 @@ import me.zhengjie.modules.business.rest.response.CreateItemLabelResponse;
 import me.zhengjie.modules.business.rest.response.GetFirstLabelListResponse;
 import me.zhengjie.modules.business.rest.response.GetItemLabelListResponse;
 import me.zhengjie.utils.RedisUtils;
+import me.zhengjie.utils.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,6 +79,8 @@ public class ItemLabelService {
             itemLabel.setLastModifyTime(new Date());
             if(LabelLevelEnum.LEVEL_2.getCode().equals(request.getLabelLevel())){
                 itemLabel.setFirstLabelId(request.getFirstLabelId());
+            }else if(LabelLevelEnum.LEVEL_1.getCode().equals(request.getLabelLevel())) {
+                itemLabel.setFirstLabelId(0l);
             }
             bizItemLabelMapper.updateByPrimaryKey(itemLabel);
             response.setLabelLevel(request.getLabelLevel());
@@ -164,6 +167,12 @@ public class ItemLabelService {
         if(!CollectionUtils.isEmpty(request.getLabelIdList())){
             queryWrapper.in(BizItemLabel::getId, request.getLabelIdList());
         }
+        if(!StringUtils.isEmpty(request.getLabelName())){
+            queryWrapper.like(BizItemLabel::getLabelName, request.getLabelName());
+        }
+        if(!StringUtils.isEmpty(request.getDescription())){
+            queryWrapper.like(BizItemLabel::getDescription, request.getDescription());
+        }
         if(null != request.getLabelLevel()){
             queryWrapper.eq(BizItemLabel::getLabelLevel, request.getLabelLevel());
         }
@@ -182,8 +191,9 @@ public class ItemLabelService {
 
         // 按照级别正序排列，按照创建时间倒序排列
         queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
-        queryWrapper.orderByAsc(BizItemLabel::getLabelLevel)
-                .orderByDesc(BizItemLabel::getCreateTime);
+//        queryWrapper.orderByAsc(BizItemLabel::getLabelLevel)
+//                .orderByDesc(BizItemLabel::getCreateTime);
+        queryWrapper.orderByDesc(BizItemLabel::getId);
         return queryWrapper;
     }
 

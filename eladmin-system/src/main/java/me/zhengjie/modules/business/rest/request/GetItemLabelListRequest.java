@@ -15,6 +15,11 @@ public class GetItemLabelListRequest implements Serializable {
     private List<Long> labelIdList;
 
     /**
+     * 标签名称
+     */
+    private String labelName;
+
+    /**
      * 标签等级 1 一级，2 二级
      */
     private Integer	labelLevel;
