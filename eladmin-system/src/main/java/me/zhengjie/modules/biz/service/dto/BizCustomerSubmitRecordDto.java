@@ -15,27 +15,45 @@
  */
 package me.zhengjie.modules.biz.service.dto;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.zhengjie.annotation.Query;
+import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
-* @author Zheng Jie
-* @date 2019-03-29
-*/
-@Data
+ * @author Zheng Jie
+ * @date 2019-03-29
+ */
+@Getter
+@Setter
 @NoArgsConstructor
-public class BizItemBaseRecordQueryCriteria {
+public class BizCustomerSubmitRecordDto implements Serializable {
 
-    @Query(type = Query.Type.IN)
-    private List<String> itemNo;
+    /**
+     * 主键ID
+     */
+    private Long id;
+    /**
+     * 用户ID
+     */
+    private Long userId;
+    /**
+     * 状态 0：未处理；1：已处理
+     */
+    private Integer	submitStatus;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
 
-    @Query
-    private Integer itemStatus;
+    private String username;
 
-    @Query(type = Query.Type.BETWEEN)
-    private List<Timestamp> createTime;
+    private String nickName;
+
+    private String email;
+
+    private String phone;
+
 }

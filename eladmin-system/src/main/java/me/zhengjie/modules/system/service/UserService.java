@@ -41,6 +41,8 @@ public interface UserService {
      */
     UserDto findById(long id);
 
+    Map<Long, UserDto> batchFindByIds(List<Long> ids);
+
     /**
      * 新增用户
      * @param resources /

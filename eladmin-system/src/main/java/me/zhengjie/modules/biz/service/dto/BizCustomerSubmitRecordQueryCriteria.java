@@ -28,13 +28,16 @@ import java.util.List;
 */
 @Data
 @NoArgsConstructor
-public class BizItemBaseRecordQueryCriteria {
+public class BizCustomerSubmitRecordQueryCriteria {
 
-    @Query(type = Query.Type.IN)
-    private List<String> itemNo;
+    @Query(type = Query.Type.EQUAL)
+    private Long id;
 
-    @Query
-    private Integer itemStatus;
+    @Query(type = Query.Type.EQUAL)
+    private String userId;
+
+    @Query(type = Query.Type.EQUAL)
+    private Integer	submitStatus;
 
     @Query(type = Query.Type.BETWEEN)
     private List<Timestamp> createTime;

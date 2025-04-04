@@ -83,6 +83,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<Long, UserDto> batchFindByIds(List<Long> ids) {
+        Map<Long, UserDto> userMap = new HashMap<>();
+        for (Long id : ids) {
+            userMap.put(id, findById(id));
+        }
+        return userMap;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void create(User resources) {
         if (userRepository.findByUsername(resources.getUsername()) != null) {
