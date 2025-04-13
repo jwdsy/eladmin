@@ -48,7 +48,7 @@ public class BizCustomerSubmitRecordServiceImpl implements BizCustomerSubmitReco
     public void download(Long submitId, HttpServletResponse response) throws Exception {
         GetSimpleSubmitItemListRequest request = new GetSimpleSubmitItemListRequest();
         request.setSubmitId(submitId);
-        customerSubmitManagerService.exportSimpleSubmitItemList(request, response.getOutputStream());
+        customerSubmitManagerService.exportSimpleSubmitItemList2(request, response.getOutputStream());
     }
 
     @Override

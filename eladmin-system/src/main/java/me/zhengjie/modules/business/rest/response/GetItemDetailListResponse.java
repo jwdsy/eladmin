@@ -1,5 +1,6 @@
 package me.zhengjie.modules.business.rest.response;
 
+import com.alibaba.excel.metadata.data.WriteCellData;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -104,7 +105,10 @@ public class GetItemDetailListResponse implements Serializable {
 
 
 // ==================== 下面是计算出来的 ====================
-
+        /**
+         * 商品图片
+         */
+        private WriteCellData<Void> itemPicture;
         /**
          * 美金--因为汇率，算得不太准
          */
