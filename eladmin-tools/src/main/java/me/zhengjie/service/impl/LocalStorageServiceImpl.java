@@ -19,25 +19,26 @@ import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.config.FileProperties;
 import me.zhengjie.domain.LocalStorage;
+import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.repository.LocalStorageRepository;
+import me.zhengjie.service.LocalStorageService;
 import me.zhengjie.service.dto.LocalStorageDto;
 import me.zhengjie.service.dto.LocalStorageQueryCriteria;
 import me.zhengjie.service.mapstruct.LocalStorageMapper;
-import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.utils.*;
-import me.zhengjie.repository.LocalStorageRepository;
-import me.zhengjie.service.LocalStorageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
 
 /**
 * @author Zheng Jie
@@ -90,6 +91,32 @@ public class LocalStorageServiceImpl implements LocalStorageService {
                     FileUtil.getSize(multipartFile.getSize())
             );
             return localStorageRepository.save(localStorage);
+        }catch (Exception e){
+            FileUtil.del(file);
+            throw e;
+        }
+    }
+
+    @Override
+    public LocalStorage uploadProductPic(String name, MultipartFile multipartFile) {
+        FileUtil.checkSize(properties.getMaxSize(), multipartFile.getSize());
+        String suffix = FileUtil.getExtensionName(multipartFile.getOriginalFilename());
+        String type = FileUtil.getFileType(suffix);
+        File file = FileUtil.upload(multipartFile, properties.getPath().getPath() + type +  File.separator);
+        if(ObjectUtil.isNull(file)){
+            throw new BadRequestException("上传失败");
+        }
+        try {
+            name = StringUtils.isBlank(name) ? FileUtil.getFileNameNoEx(multipartFile.getOriginalFilename()) : name;
+            LocalStorage localStorage = new LocalStorage(
+                    file.getName(),
+                    name,
+                    suffix,
+                    file.getPath(),
+                    type,
+                    FileUtil.getSize(multipartFile.getSize())
+            );
+            return localStorage;
         }catch (Exception e){
             FileUtil.del(file);
             throw e;

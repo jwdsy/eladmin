@@ -1,4 +1,4 @@
-package me.zhengjie.modules.business.service.impl;
+package me.zhengjie.modules.biz.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.exception.EntityExistException;

@@ -1,22 +1,28 @@
 package me.zhengjie.modules.business.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.fasterxml.jackson.core.JsonParser;
 import com.spire.xls.*;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NumberType;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.modules.business.domain.BizItemBaseRecord;
-import me.zhengjie.modules.business.enums.IsTypeInteger;
+import me.zhengjie.modules.business.domain.FillData;
 import me.zhengjie.modules.business.repository.BizItemBaseRecordMapper;
 import me.zhengjie.modules.business.rest.request.GetItemDetailListRequest;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
+import me.zhengjie.modules.business.utils.OkHttpUtils;
+import me.zhengjie.modules.business.utils.TemplateExcelUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,6 +75,40 @@ public class ItemDetailExportService {
                 out.close();
             }
             workbook.dispose();
+        }
+    }
+
+    public void exportItemDetailList2(List<GetItemDetailListResponse.ItemModel> itemModelList, ServletOutputStream out) {
+        if(CollectionUtils.isEmpty(itemModelList)){
+            return;
+        }
+        try {
+            // 加载示例文档
+            String templateFileName = "http://8.130.87.100:8009/template/exportTemplate.xlsx";
+            byte[] templateBytes = OkHttpUtils.downloadImage(templateFileName);
+            if (templateBytes == null || templateBytes.length == 0) {
+                throw new RuntimeException("模板文件不存在");
+            }
+            InputStream templateStream = new ByteArrayInputStream(templateBytes);
+            try (ExcelWriter excelWriter = EasyExcel.write(out).withTemplate(templateStream).build()) {
+                WriteSheet writeSheet = EasyExcel.writerSheet().build();
+                FillData fillData = FillData.getInstance();
+                itemModelList.forEach(itemModel -> {
+                    try {
+                        byte[] bytes = OkHttpUtils.downloadImage(itemModel.getItemPic());
+                        WriteCellData<Void> voidWriteCellData = TemplateExcelUtils.imageCells(bytes);
+                        itemModel.setItemPicture(voidWriteCellData);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                // 直接写入数据
+                excelWriter.fill(fillData, writeSheet);
+                excelWriter.fill(itemModelList, writeSheet);
+                excelWriter.finish();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -204,7 +244,10 @@ public class ItemDetailExportService {
         }
         // 设置列宽
         sheet.setColumnWidth(columnIndex, COLUMN_WIDTH);
+        long start = System.currentTimeMillis();
         BufferedImage targetImage = downloadImage(picUrl);
+        long end = System.currentTimeMillis();
+        log.info("download time:" + (end - start) + "ms");
         if(null == targetImage){
             // todo:增加日志
             return;

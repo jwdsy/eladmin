@@ -61,6 +61,8 @@ public interface LocalStorageService {
      */
     LocalStorage create(String name, MultipartFile file);
 
+    LocalStorage uploadProductPic(String name, MultipartFile multipartFile);
+
     /**
      * 编辑
      * @param resources 文件信息

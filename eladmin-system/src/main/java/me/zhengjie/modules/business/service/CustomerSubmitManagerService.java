@@ -22,11 +22,14 @@ import me.zhengjie.modules.system.service.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Description ：description
@@ -126,6 +129,19 @@ public class CustomerSubmitManagerService {
         itemDetailExportService.exportItemDetailList(itemModelList, out);
     }
 
+    public void exportSimpleSubmitItemList2(GetSimpleSubmitItemListRequest request, ServletOutputStream out) {
+        Map<Long, String> pickRemarkMap = getSubmitRemarkMap(request);
+        // 1、封装查询条件
+        LambdaQueryWrapper<BizItemBaseRecord> ItemQueryWrapper = new LambdaQueryWrapper<>();
+        ItemQueryWrapper.in(BizItemBaseRecord::getId, pickRemarkMap.keySet())
+                .orderByAsc(BizItemBaseRecord::getItemNo);
+        // 2、查询
+        List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(ItemQueryWrapper);
+        // 3、封装返回结果
+        List<GetItemDetailListResponse.ItemModel> itemModelList = customerPickManagerService.getItemModelList(recordList, pickRemarkMap);
+        itemDetailExportService.exportItemDetailList2(itemModelList, out);
+    }
+
     public Map<Long, String> getSubmitRemarkMap(GetSimpleSubmitItemListRequest request){
         if(null == request.getSubmitId()){
             throw new BadRequestException("提交ID不能为空");
@@ -144,5 +160,4 @@ public class CustomerSubmitManagerService {
         }
         return pickRemarkMap;
     }
-
 }

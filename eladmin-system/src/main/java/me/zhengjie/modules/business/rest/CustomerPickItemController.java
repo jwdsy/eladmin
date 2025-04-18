@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 /**
  * @Description ：description
@@ -75,7 +76,22 @@ public class CustomerPickItemController {
     public ResponseEntity<GetItemDetailListResponse> exportSimpleSubmitItemList(@RequestBody GetSimpleSubmitItemListRequest request, HttpServletResponse servletResponse) throws Exception {
         servletResponse.setContentType("application/octet-stream");
         servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
-        customerSubmitManagerService.exportSimpleSubmitItemList(request, servletResponse.getOutputStream());
+        customerSubmitManagerService.exportSimpleSubmitItemList2(request, servletResponse.getOutputStream());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+
+    @ApiOperation("导出顾客单次提交的产品列表2")
+    @AnonymousPostMapping(value = "/v1/exportSimpleSubmitItemList2")
+    public ResponseEntity<GetItemDetailListResponse> exportSimpleSubmitItemList2(@RequestBody GetSimpleSubmitItemListRequest request, HttpServletResponse servletResponse) throws Exception {
+        // 1. 设置响应头
+        servletResponse.setContentType("application/vnd.ms-excel");
+//        servletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        servletResponse.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode("填充后的数据", "UTF-8").replaceAll("\\+", "%20");
+        servletResponse.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+        customerSubmitManagerService.exportSimpleSubmitItemList2(request, servletResponse.getOutputStream());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
+

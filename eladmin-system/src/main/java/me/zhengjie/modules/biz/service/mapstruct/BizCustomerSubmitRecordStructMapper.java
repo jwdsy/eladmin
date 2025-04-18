@@ -13,29 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package me.zhengjie.modules.biz.service.dto;
+package me.zhengjie.modules.biz.service.mapstruct;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import me.zhengjie.annotation.Query;
-
-import java.sql.Timestamp;
-import java.util.List;
+import me.zhengjie.base.BaseMapper;
+import me.zhengjie.modules.biz.repository.domain.BizCustomerSubmitRecord;
+import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
 /**
 * @author Zheng Jie
 * @date 2019-03-29
 */
-@Data
-@NoArgsConstructor
-public class BizItemBaseRecordQueryCriteria {
+@Mapper(componentModel = "spring",uses = {BizCustomerSubmitRecordStructMapper.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface BizCustomerSubmitRecordStructMapper extends BaseMapper<BizCustomerSubmitRecordDto, BizCustomerSubmitRecord> {
 
-    @Query(type = Query.Type.IN)
-    private List<String> itemNo;
-
-    @Query
-    private Integer itemStatus;
-
-    @Query(type = Query.Type.BETWEEN)
-    private List<Timestamp> createTime;
 }
