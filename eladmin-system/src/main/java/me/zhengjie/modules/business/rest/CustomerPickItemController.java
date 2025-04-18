@@ -76,7 +76,7 @@ public class CustomerPickItemController {
     public ResponseEntity<GetItemDetailListResponse> exportSimpleSubmitItemList(@RequestBody GetSimpleSubmitItemListRequest request, HttpServletResponse servletResponse) throws Exception {
         servletResponse.setContentType("application/octet-stream");
         servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
-        customerSubmitManagerService.exportSimpleSubmitItemList2(request, servletResponse.getOutputStream());
+        customerSubmitManagerService.exportSimpleSubmitItemList(request, servletResponse.getOutputStream());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 

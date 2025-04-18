@@ -65,7 +65,7 @@ public class CompressPictureService {
                 continue;
             }
             // 只能是.jpeg 才能被识别
-            if(!sourceFile.getName().endsWith(".jpeg")){
+            if(!sourceFile.getName().endsWith(".jpeg") && !sourceFile.getName().endsWith(".JPG")){
                 continue;
             }
             File outputFile = new File(targetPath, sourceFile.getName());
