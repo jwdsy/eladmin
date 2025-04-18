@@ -86,6 +86,12 @@ public class ItemDetailService {
 
         // 3、封装返回结果
         List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(recordList);
+        // 图片换成压缩图片
+        if(!CollectionUtils.isEmpty(itemModelList)){
+            for (GetItemDetailListResponse.ItemModel itemModel : itemModelList){
+                itemModel.setItemPic(itemModel.getItemDepressPic());
+            }
+        }
         GetItemDetailListResponse response = new GetItemDetailListResponse();
         response.setItemList(itemModelList);
         response.setTotalNum(pageInfo.getTotal());
@@ -131,6 +137,7 @@ public class ItemDetailService {
             itemModel.setItemId(record.getId());
             itemModel.setItemNo(record.getItemNo());
             itemModel.setItemPic(record.getItemPic());
+            itemModel.setItemDepressPic(record.getItemCompressPic());
             itemModel.setDescription(record.getDescription());
             itemModel.setDeliveryPort(record.getDeliveryPort());
             itemModel.setItemLength(BigDecimalUtil.convertToStrTowScale(record.getItemLength()));
