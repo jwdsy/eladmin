@@ -1,5 +1,7 @@
 package me.zhengjie.modules.business.service;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.data.WriteCellData;
@@ -28,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -125,7 +128,7 @@ public class ItemDetailExportService {
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
         CellRange cell = sheet.getCellRange(7, 17);
-        cell.setText("hahahh");
+        cell.setText(DateUtil.format(new Date(), "yyyy/MM/dd"));
 
         for (int i = 0; i < itemModelList.size(); i++) {
             GetItemDetailListResponse.ItemModel itemModel = itemModelList.get(i);
