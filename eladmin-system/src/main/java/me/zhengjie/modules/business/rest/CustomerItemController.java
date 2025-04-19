@@ -37,6 +37,7 @@ public class CustomerItemController {
 
     @ApiOperation("获取展示产品标签列表")
     @GetMapping(value = "/label/list")
+    @PreAuthorize("@el.check('clabel:list')")
     public ResponseEntity<GetDisplayLabelListResponse> getDisplayLabelList(GetDisplayLabelListRequest request) throws Exception {
         GetDisplayLabelListResponse response = customerItemDisplayService.getDisplayLabelList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -44,7 +45,7 @@ public class CustomerItemController {
 
     @ApiOperation("获取展示产品列表")
     @GetMapping(value = "/list")
-    @PreAuthorize("@el.check('product:list')")
+    @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<GetDisplayItemListResponse> getDisplayItemList(GetDisplayItemListRequest request) throws Exception {
         if(null == request.getUserId()){
             request.setUserId(SecurityUtils.getCurrentUserId());
