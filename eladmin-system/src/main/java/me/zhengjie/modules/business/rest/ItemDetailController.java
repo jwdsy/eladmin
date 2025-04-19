@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.annotation.rest.AnonymousPostMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.CreateItemDetailRequest;
 import me.zhengjie.modules.business.rest.request.DeleteItemDetailRequest;
@@ -46,9 +47,11 @@ public class ItemDetailController {
     private ItemDetailExportService itemDetailExportService;
 
     @ApiOperation("导出产品列表")
-    @PostMapping(value = "/v1/exportItemDetailList")
-    @PreAuthorize("@el.check('product:list')")
+    @AnonymousPostMapping(value = "/v1/exportItemDetailList")
+//    @PreAuthorize("@el.check('product:list')")
     public void exportItemDetailList(@RequestBody GetItemDetailListRequest request, HttpServletResponse servletResponse) throws Exception {
+        servletResponse.setContentType("application/octet-stream");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=item.xlsx");
         itemDetailExportService.exportItemDetailList(request, servletResponse.getOutputStream());
     }
 
