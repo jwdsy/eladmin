@@ -25,6 +25,7 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.repository.EmailRepository;
 import me.zhengjie.service.EmailService;
 import me.zhengjie.utils.EncryptUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,6 +42,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "email")
 public class EmailServiceImpl implements EmailService {
+
+    @Value("${web.site:http://buckteethss.com}")
+    private String webSite;
 
     private final EmailRepository emailRepository;
 
@@ -110,78 +114,144 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendCreateUserEmail(String userName, String accountName, String password, String email) {
         EmailVo emailVo = new EmailVo();
-        emailVo.setSubject("【XX科技】账号注册成功");
+        emailVo.setSubject("【BEIJING SIMPLE HOME DECO CO.,LTD】Account Successfully Registered");
         emailVo.setTos(Lists.newArrayList(email));
-        emailVo.setContent(buidlCreateUserEmailContent(userName, accountName, password));
         Optional<EmailConfig> emailConfigOptional = emailRepository.findById(1L);
         EmailConfig emailConfig = emailConfigOptional.orElseGet(EmailConfig::new);
+        emailVo.setContent(buidlCreateUserEmailContent(userName, accountName, password, emailConfig.getFromUser()));
         send(emailVo, emailConfig);
     }
 
     @Override
     public void sendResetPwdEmail(String userName, String accountName, String password, String email, EmailConfig emailConfig) {
         EmailVo emailVo = new EmailVo();
-        emailVo.setSubject("【XX科技】账号密码重置成功");
+        emailVo.setSubject("【BEIJING SIMPLE HOME DECO CO.,LTD】Your Password Has Been Reset Successfully");
         emailVo.setTos(Lists.newArrayList(email));
-        emailVo.setContent(buidlResetPwdEmailContent(userName, accountName, password));
+        emailVo.setContent(buidlResetPwdEmailContent(userName, accountName, password, emailConfig.getFromUser()));
         send(emailVo, emailConfig);
     }
 
-    private String buidlResetPwdEmailContent(String userName, String accountName, String password) {
+    private String buidlResetPwdEmailContent(String userName, String accountName, String password, String email) {
         return "<p style=\"text-align:left;\">\n" +
                 "\t<br />\n" +
-                "\t<b>\n" +
-                "\t\t<font color=\"#c24f4a\">" + userName + "</font>\n" +
-                "\t</b>，您好：\n" +
+                "\t<b>\nDear " + userName + "," +
                 "\t<br />\n" +
-                "\t<br />您在xxxx网站( xxxx.com )的账号密码重置成功。\n" +
+                "\t<br />Your account and password on [BEIJING SIMPLE HOME DECO CO.,LTD] has been successfully reset.\n" +
                 "\t<br />\n" +
                 "\t<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
                 "\t<font color=\"#c24f4a\">\n" +
-                "\t\t<b>登录账号：" + accountName + "</b>\n" +
+                "\t\t<b>Account Username：" + accountName + "</b>\n" +
                 "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
                 "</p>\n" +
                 "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
                 "\t<font color=\"#c24f4a\">\n" +
-                "\t\t<b>重置后密码：" + password + "</b>\n" +
+                "\t\t<b>New Password：" + password + "</b>\n" +
                 "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>WebSite：" + webSite + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
                 "</p>\n" +
                 "<p style=\"text-align:left;\">\n" +
-                "\t<br />此邮件为系统自动发出，请勿直接回复。\n" +
-                "\t<br />\n" +
-                "\t<br />请您切勿将此信息泄露给他人，如有其他任何疑问，请发邮件至：service@xxxx.com 或致电XXX科技客服：400-619-xxxx\n" +
-                "\t<br />\n" +
-                "\t<br />XXX有限公司\n" +
-                "\t<br />\n" +
-                "</p>";
+                "(This is an automated email—please do not reply directly.)<br /><br />\n" +
+                "For security reasons, please:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tKeep this information confidential and do not share it with others.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tChange your password after the first login for added protection.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "If you have any questions or did not request this reset, please contact:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tEmail: "+ email +"\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tCustomer Service Hotline: 86-10-59528198\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "Best regards,<br />\n" +
+                "[BEIJING SIMPLE HOME DECO CO.,LTD]<br />";
     }
 
-    private static String buidlCreateUserEmailContent(String userName, String accountName, String password) {
+    private String buidlCreateUserEmailContent(String userName, String accountName, String password, String email) {
         return "<p style=\"text-align:left;\">\n" +
                 "\t<br />\n" +
-                "\t<b>\n" +
-                "\t\t<font color=\"#c24f4a\">" + userName + "</font>\n" +
-                "\t</b>，您好：\n" +
+                "\t<b>\nDear " + userName + "," +
                 "\t<br />\n" +
-                "\t<br />您在xxxx网站( xxxx.com )的账户已经注册成功。\n" +
+                "\t<br />Your account and password on [BEIJING SIMPLE HOME DECO CO.,LTD] has been successfully registered.\n" +
                 "\t<br />\n" +
                 "\t<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
                 "\t<font color=\"#c24f4a\">\n" +
-                "\t\t<b>登录账号：" + accountName + "</b>\n" +
+                "\t\t<b>Account Username：" + accountName + "</b>\n" +
                 "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
                 "</p>\n" +
                 "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
                 "\t<font color=\"#c24f4a\">\n" +
-                "\t\t<b>登录密码：" + password + "</b>\n" +
+                "\t\t<b>Password：" + password + "</b>\n" +
                 "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>WebSite：" + webSite + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
                 "</p>\n" +
                 "<p style=\"text-align:left;\">\n" +
-                "\t<br />此邮件为系统自动发出，请勿直接回复。\n" +
-                "\t<br />\n" +
-                "\t<br />请您切勿将此信息泄露给他人，如有其他任何疑问，请发邮件至：service@xxxx.com 或致电XXX科技客服：400-619-xxxx\n" +
-                "\t<br />\n" +
-                "\t<br />XXX有限公司\n" +
-                "\t<br />\n" +
-                "</p>";
+                "(This is an automated email—please do not reply directly.)<br /><br />\n" +
+                "For security reasons, please:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tKeep this information confidential and do not share it with others.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tChange your password after the first login for added protection.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "If you have any questions or did not request this reset, please contact:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tEmail: "+ email +"\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tCustomer Service Hotline: 86-10-59528198\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "Best regards,<br />\n" +
+                "[BEIJING SIMPLE HOME DECO CO.,LTD]<br />";
     }
 }
