@@ -41,7 +41,7 @@ public class ItemLabelController {
     @Autowired
     private ItemLabelService itemLabelService;
 
-    @ApiOperation("创建/更新产品标签")
+    @ApiOperation("创建/更新产品标签1")
     @AnonymousPostMapping(value = "/v1/createOrUpdateItemLabel")
     public ResponseEntity<CreateItemLabelResponse> createOrUpdateItemLabel(@RequestBody CreateItemLabelRequest request) throws Exception {
         Integer labelLevel = request.getLabelLevel();
