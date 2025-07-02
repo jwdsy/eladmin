@@ -5,11 +5,13 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.Log;
+import me.zhengjie.annotation.rest.AnonymousGetMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.biz.repository.domain.BizItemBaseRecord;
 import me.zhengjie.modules.biz.service.BizItemBaseRecordService;
 import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordDto;
 import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordQueryCriteria;
+import me.zhengjie.utils.OpenCVImageSearcher;
 import me.zhengjie.utils.PageResult;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,8 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -33,6 +39,9 @@ public class BizItemBaseRecordController {
 
     private final BizItemBaseRecordService bizItemBaseRecordService;
     private static final String ENTITY_NAME = "bizItem";
+
+    @Resource
+    OpenCVImageSearcher searcher;
 
     @ApiOperation("导出产品列表")
     @GetMapping(value = "/download")
@@ -76,5 +85,13 @@ public class BizItemBaseRecordController {
     public ResponseEntity<Object> deleteBizItem(@RequestBody Set<Long> ids) throws Exception {
         bizItemBaseRecordService.delete(ids);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @AnonymousGetMapping
+    @ApiOperation("相似图片搜索")
+    @RequestMapping("/search")
+    public Object imageSearch(@RequestBody MultipartFile file, Integer topN, String password, HttpServletRequest request) throws IOException {
+        // 搜索相似图片
+        return searcher.searchSimilarImages(topN, file.getBytes());
     }
 }
