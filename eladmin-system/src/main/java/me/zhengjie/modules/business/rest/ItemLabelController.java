@@ -81,7 +81,7 @@ public class ItemLabelController {
 
     @ApiOperation("查询产品标签列表")
     @PostMapping(value = "/v1/getItemLabelList")
-    @PreAuthorize("@el.check('label:list')")
+//    @PreAuthorize("@el.check('label:list')")
     public ResponseEntity<GetItemLabelListResponse> getItemLabelList(@RequestBody GetItemLabelListRequest request) throws Exception {
         GetItemLabelListResponse response = itemLabelService.getItemLabelList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
