@@ -43,20 +43,84 @@ public class ItemDetailService {
 
     public CreateItemDetailResponse createOrUpdateItemDetail(CreateItemDetailRequest request){
         CreateItemDetailResponse response = new CreateItemDetailResponse();
+        // 校验商品编号不能为空
+        if(StringUtils.isBlank(request.getItemNo())){
+            throw new BadRequestException("商品编号不能为空");
+        }
+        
         if(null == request.getItemId()){
+            // 新增商品
+            // 校验商品编号是否已存在
+            LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(BizItemBaseRecord::getItemNo, request.getItemNo())
+                    .eq(BizItemBaseRecord::getDelFlag, IsTypeInteger.NO.getCode());
+            BizItemBaseRecord existRecord = bizItemBaseRecordMapper.selectOne(queryWrapper);
+            if(null != existRecord){
+                throw new BadRequestException("商品编号已存在");
+            }
+            
             BizItemBaseRecord record = new BizItemBaseRecord();
-
-
+            // 设置基本信息
+            record = getBizItemBaseRecord(record, request);
+            record.setItemNo(request.getItemNo());
+            
+            // 设置默认值
+            record.setCreateTime(new Date());
+            record.setCreateUserId(request.getUserId());
+            
             bizItemBaseRecordMapper.insertSelective(record);
+            response.setItemId(record.getId());
+            
         }else {
+            // 修改商品
             BizItemBaseRecord record = bizItemBaseRecordMapper.getByPrimaryKey(request.getItemId());
             if(null == record){
                 throw new BadRequestException("未查到产品信息");
             }
+            if(IsTypeInteger.YES.getCode().equals(record.getDelFlag())){
+                throw new BadRequestException("该产品已被删除");
+            }
+            getBizItemBaseRecord(record, request);
+            record.setLastModifyTime(new Date());
+            record.setModifyUserId(request.getUserId());
+            
+            bizItemBaseRecordMapper.updateByPrimaryKey(record);
             response.setItemId(record.getId());
         }
         return response;
     }
+
+    public BizItemBaseRecord getBizItemBaseRecord(BizItemBaseRecord record, CreateItemDetailRequest request){
+
+        record.setItemCompressPic(request.getItemPic());
+        // 设置itemPic字段，去掉compress路径
+        if(!StringUtils.isBlank(request.getItemPic())){
+            String itemPic = request.getItemPic().replace("/compress/", "/");
+            record.setItemPic(itemPic);
+        }
+        record.setDescription(request.getDescription());
+        record.setDeliveryPort(request.getDeliveryPort());
+        record.setItemLength(request.getItemLength());
+        record.setItemWidth(request.getItemWidth());
+        record.setItemHeight(request.getItemHeight());
+        record.setInnerBox(request.getInnerBox());
+        record.setOuterCtn(request.getOuterCtn());
+        record.setWeightPieces(request.getWeightPieces());
+        record.setMininumOrderQuantity(request.getMininumOrderQuantity());
+        record.setCartonLength(request.getCartonLength());
+        record.setCartonWidth(request.getCartonWidth());
+        record.setCartonHeight(request.getCartonHeight());
+        record.setUnitPrice(request.getUnitPrice());
+        record.setFactoryName(request.getFactoryName());
+        record.setItemCraft(request.getItemCraft());
+        record.setFirstLabelId(request.getFirstLabelId());
+        record.setSecondLabelId(request.getSecondLabelId());
+        record.setItemRemark(request.getItemRemark());
+        record.setYear(request.getYear());
+        record.setSeason(request.getSeason());
+        return record;
+    }
+
 
     public void updateItemStatus(UpdateItemStatusRequest request){
         BizItemBaseRecord record = bizItemBaseRecordMapper.getByPrimaryKey(request.getItemId());
@@ -120,6 +184,9 @@ public class ItemDetailService {
         if(!StringUtils.isBlank(request.getFactoryName())){
             queryWrapper.like(BizItemBaseRecord::getFactoryName, request.getFactoryName());
         }
+        if(null != request.getItemStatus()){
+            queryWrapper.eq(BizItemBaseRecord::getItemStatus, request.getItemStatus());
+        }
         queryWrapper.eq(BizItemBaseRecord::getDelFlag, IsTypeInteger.NO.getCode())
                 .orderByDesc(BizItemBaseRecord::getId);
         return queryWrapper;
@@ -175,7 +242,7 @@ public class ItemDetailService {
             itemModel.setFirstLabelName(labelNameMap.get(record.getFirstLabelId()));
             itemModel.setSecondLabelId(record.getSecondLabelId());
             itemModel.setSecondLabelName(labelNameMap.get(record.getSecondLabelId()));
-            itemModel.setYear(itemModel.getYear());
+            itemModel.setYear(record.getYear());
             itemModel.setSeason(record.getSeason());
             itemModel.setItemStatus(record.getItemStatus());
             itemModel.setItemRemark(record.getItemRemark());

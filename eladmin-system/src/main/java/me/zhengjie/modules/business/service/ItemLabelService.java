@@ -12,10 +12,7 @@ import me.zhengjie.modules.business.enums.IsTypeInteger;
 import me.zhengjie.modules.business.enums.LabelLevelEnum;
 import me.zhengjie.modules.business.enums.LabelStatusEnum;
 import me.zhengjie.modules.business.repository.BizItemLabelMapper;
-import me.zhengjie.modules.business.rest.request.CreateItemLabelRequest;
-import me.zhengjie.modules.business.rest.request.DeleteItemLabelRequest;
-import me.zhengjie.modules.business.rest.request.GetItemLabelListRequest;
-import me.zhengjie.modules.business.rest.request.UpdateItemLabelStatusRequest;
+import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.CreateItemLabelResponse;
 import me.zhengjie.modules.business.rest.response.GetFirstLabelListResponse;
 import me.zhengjie.modules.business.rest.response.GetItemLabelListResponse;
@@ -140,9 +137,16 @@ public class ItemLabelService {
         return response;
     }
 
-    public GetFirstLabelListResponse getFirstLabelList(){
+    public GetFirstLabelListResponse getFirstLabelList(GetFirstLabelRequest request){
+        if(null == request.getLabelLevel()){
+            request.setLabelLevel(LabelLevelEnum.LEVEL_1.getCode());
+        }
+
         LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BizItemLabel::getLabelLevel, LabelLevelEnum.LEVEL_1.getCode());
+        queryWrapper.eq(BizItemLabel::getLabelLevel, request.getLabelLevel());
+        if(null != request.getFirstLabelId()){
+            queryWrapper.eq(BizItemLabel::getFirstLabelId, request.getFirstLabelId());
+        }
         queryWrapper.eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode());
         List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
         GetFirstLabelListResponse response = new GetFirstLabelListResponse();
