@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.rest.AnonymousPostMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.picture.CompressPictureRequest;
-import me.zhengjie.modules.business.service.impl.picture.CompressPictureService;
+import me.zhengjie.modules.business.service.picture.CompressPictureService;
 import me.zhengjie.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
