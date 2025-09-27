@@ -187,6 +187,12 @@ public class ItemDetailService {
         if(null != request.getItemStatus()){
             queryWrapper.eq(BizItemBaseRecord::getItemStatus, request.getItemStatus());
         }
+        if (null != request.getYear()) {
+            queryWrapper.eq(BizItemBaseRecord::getYear, request.getYear());
+        }
+        if (null != request.getSeason()) {
+            queryWrapper.eq(BizItemBaseRecord::getSeason, request.getSeason());
+        }
         queryWrapper.eq(BizItemBaseRecord::getDelFlag, IsTypeInteger.NO.getCode())
                 .orderByDesc(BizItemBaseRecord::getId);
         return queryWrapper;

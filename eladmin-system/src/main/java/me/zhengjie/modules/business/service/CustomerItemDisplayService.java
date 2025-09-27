@@ -39,20 +39,20 @@ public class CustomerItemDisplayService {
     private BizCustomerPickRecordMapper bizCustomerPickRecordMapper;
 
 
-    public GetDisplayLabelListResponse getDisplayLabelList(GetDisplayLabelListRequest request){
+    public GetDisplayLabelListResponse getDisplayLabelList(GetDisplayLabelListRequest request) {
         LambdaQueryWrapper<BizItemLabel> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BizItemLabel::getLabelStatus, 1)
                 .eq(BizItemLabel::getDelFlag, IsTypeInteger.NO.getCode())
                 .orderByAsc(BizItemLabel::getId);
         List<BizItemLabel> labelList = bizItemLabelMapper.selectList(queryWrapper);
-        if(CollectionUtils.isEmpty(labelList)){
+        if (CollectionUtils.isEmpty(labelList)) {
             return null;
         }
         List<GetDisplayLabelListResponse.LabelModel> labelModelList = new ArrayList<>();
         Map<Long, List<GetDisplayLabelListResponse.LabelModel>> secondLabelMap = new HashMap<>();
         // 添加一级标签
-        for (BizItemLabel label : labelList){
-            if(LabelLevelEnum.LEVEL_1.getCode().equals(label.getLabelLevel())){
+        for (BizItemLabel label : labelList) {
+            if (LabelLevelEnum.LEVEL_1.getCode().equals(label.getLabelLevel())) {
                 GetDisplayLabelListResponse.LabelModel labelModel = new GetDisplayLabelListResponse.LabelModel();
                 labelModel.setLabelId(label.getId());
                 labelModel.setLabelName(label.getLabelName());
@@ -60,9 +60,9 @@ public class CustomerItemDisplayService {
                 labelModelList.add(labelModel);
                 continue;
             }
-            if(LabelLevelEnum.LEVEL_2.getCode().equals(label.getLabelLevel()) && null != label.getFirstLabelId()){
+            if (LabelLevelEnum.LEVEL_2.getCode().equals(label.getLabelLevel()) && null != label.getFirstLabelId()) {
                 List<GetDisplayLabelListResponse.LabelModel> secondLabelList = secondLabelMap.get(label.getFirstLabelId());
-                if(CollectionUtils.isEmpty(secondLabelList)){
+                if (CollectionUtils.isEmpty(secondLabelList)) {
                     secondLabelList = new ArrayList<>();
                 }
                 GetDisplayLabelListResponse.LabelModel labelModel = new GetDisplayLabelListResponse.LabelModel();
@@ -74,12 +74,12 @@ public class CustomerItemDisplayService {
             }
         }
 
-        if(CollectionUtils.isEmpty(labelModelList)){
+        if (CollectionUtils.isEmpty(labelModelList)) {
             return null;
         }
 
         // 添加二级标签
-        for (GetDisplayLabelListResponse.LabelModel firstLabel : labelModelList){
+        for (GetDisplayLabelListResponse.LabelModel firstLabel : labelModelList) {
             firstLabel.setSecondLabelList(secondLabelMap.get(firstLabel.getLabelId()));
         }
 
@@ -89,25 +89,31 @@ public class CustomerItemDisplayService {
         return response;
     }
 
-    public GetDisplayItemListResponse getDisplayItemList(GetDisplayItemListRequest request){
+    public GetDisplayItemListResponse getDisplayItemList(GetDisplayItemListRequest request) {
         // 1、封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = new LambdaQueryWrapper<>();
 
-        if(null != request.getFirstLabelId()){
+        if (null != request.getFirstLabelId()) {
             queryWrapper.eq(BizItemBaseRecord::getFirstLabelId, request.getFirstLabelId());
         }
-        if(null!= request.getSecondLabelId()){
+        if (null != request.getSecondLabelId()) {
             queryWrapper.eq(BizItemBaseRecord::getSecondLabelId, request.getSecondLabelId());
+        }
+        if (null != request.getYear()) {
+            queryWrapper.eq(BizItemBaseRecord::getYear, request.getYear());
+        }
+        if (null != request.getSeason()) {
+            queryWrapper.eq(BizItemBaseRecord::getSeason, request.getSeason());
         }
 
         Map<Long, String> pickItemIdMap = getPickItemMap(request.getUserId());
         Set<Long> pickItemIdSet = pickItemIdMap.keySet();
-        if(IsTypeInteger.YES.getCode().equals(request.getPickFlag())){
+        if (IsTypeInteger.YES.getCode().equals(request.getPickFlag())) {
             // 没有用户挑选的产品，直接返回空
-            if(CollectionUtils.isEmpty(pickItemIdSet)){
+            if (CollectionUtils.isEmpty(pickItemIdSet)) {
                 log.info("未查到用户喜欢的商品 userId = {}", request.getUserId());
                 return null;
-            }else {
+            } else {
                 queryWrapper.in(BizItemBaseRecord::getId, pickItemIdSet);
             }
         }
@@ -120,14 +126,14 @@ public class CustomerItemDisplayService {
         PageHelper.startPage(request.getPageNo(), request.getPageSize());
         List<BizItemBaseRecord> recordList = bizItemBaseRecordMapper.selectList(queryWrapper);
 
-        if(CollectionUtils.isEmpty(recordList)){
+        if (CollectionUtils.isEmpty(recordList)) {
             log.info("查询列表为空 request = {}", JSON.toJSON(request));
             return null;
         }
 
         // 3、封装返回数据
         List<GetDisplayItemListResponse.ItemModel> itemModelList = new ArrayList<>();
-        for(BizItemBaseRecord record : recordList){
+        for (BizItemBaseRecord record : recordList) {
             GetDisplayItemListResponse.ItemModel itemModel = new GetDisplayItemListResponse.ItemModel();
             itemModel.setItemId(record.getId());
             itemModel.setItemNo(record.getItemNo());
@@ -136,7 +142,7 @@ public class CustomerItemDisplayService {
 //            itemModel.setItemCompressPic(record.getItemCompressPic());
             itemModel.setItemNo(record.getItemNo());
             itemModel.setPickFlag(IsTypeInteger.NO.getCode());
-            if(pickItemIdSet.contains(record.getId())){
+            if (pickItemIdSet.contains(record.getId())) {
                 itemModel.setPickFlag(IsTypeInteger.YES.getCode());
                 itemModel.setPickRemark(pickItemIdMap.get(record.getId()));
             }
@@ -151,15 +157,15 @@ public class CustomerItemDisplayService {
         return response;
     }
 
-    public Map<Long, String> getPickItemMap(Long userId){
+    public Map<Long, String> getPickItemMap(Long userId) {
         LambdaQueryWrapper<BizCustomerPickRecord> pickQueryWrapper = new LambdaQueryWrapper<>();
         pickQueryWrapper.eq(BizCustomerPickRecord::getUserId, userId);
         List<BizCustomerPickRecord> pickRecordList = bizCustomerPickRecordMapper.selectList(pickQueryWrapper);
         Map<Long, String> pickRemarkMap = new HashMap<>();
-        if(CollectionUtils.isEmpty(pickRecordList)){
-           return pickRemarkMap;
+        if (CollectionUtils.isEmpty(pickRecordList)) {
+            return pickRemarkMap;
         }
-        for(BizCustomerPickRecord pickRecord : pickRecordList){
+        for (BizCustomerPickRecord pickRecord : pickRecordList) {
             pickRemarkMap.put(pickRecord.getItemId(), pickRecord.getItemRemark());
         }
         return pickRemarkMap;
