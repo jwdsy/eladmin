@@ -41,4 +41,15 @@ public class PictureUtilsController {
         String result = "共压缩" + count + "张图片";
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @ApiOperation("工具/格式化图片后缀")
+    @AnonymousPostMapping(value = "/v1/formatPicSuffix")
+    public ResponseEntity<Object> formatPicSuffix(@RequestBody CompressPictureRequest request) throws Exception {
+        if(StringUtils.isEmpty(request.getSourcePath())){
+            throw new BadRequestException("图片路径不能为空");
+        }
+        Integer count = compressPictureService.compressPicture(request);
+        String result = "共压缩" + count + "张图片";
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }
