@@ -16,15 +16,19 @@ import me.zhengjie.modules.business.rest.request.GetItemDetailListRequest;
 import me.zhengjie.modules.business.rest.response.GetItemDetailListResponse;
 import me.zhengjie.modules.business.utils.OkHttpUtils;
 import me.zhengjie.modules.business.utils.TemplateExcelUtils;
+import me.zhengjie.utils.RedisUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import net.coobird.thumbnailator.Thumbnails;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,6 +57,8 @@ public class ItemDetailExportService {
     private BizItemBaseRecordMapper bizItemBaseRecordMapper;
     @Autowired
     private ItemDetailService itemDetailService;
+    @Autowired
+    private RedisUtils redisUtils;
 
     public void exportItemDetailList(GetItemDetailListRequest request, OutputStream out) throws Exception {
         List<GetItemDetailListResponse.ItemModel> itemModelList = getItemModelList(request);
@@ -144,7 +150,7 @@ public class ItemDetailExportService {
             final int finalColumnIndex = columnIndex;
             executor.execute(() -> {
                 try {
-                    setPicCell(sheet, rowIndex, finalColumnIndex, itemModel.getItemPic());
+                    setPicCell(sheet, rowIndex, finalColumnIndex, itemModel.getItemPic(), itemModel.getItemNo());
                 }catch (Exception e){
                     log.error("导出图片失败", e);
                 }finally {
@@ -241,7 +247,7 @@ public class ItemDetailExportService {
         cell.setValue(content);
     }
 
-    private void setPicCell(Worksheet sheet, int rowIndex, int columnIndex, String picUrl) {
+    private void setPicCell(Worksheet sheet, int rowIndex, int columnIndex, String picUrl, String itemNo) {
         CellRange cell = sheet.getCellRange(rowIndex, columnIndex);
         cell.borderAround(LineStyleType.Thin);
         if(null == picUrl){
@@ -251,9 +257,9 @@ public class ItemDetailExportService {
         // 设置列宽
         sheet.setColumnWidth(columnIndex, COLUMN_WIDTH);
         long start = System.currentTimeMillis();
-        BufferedImage targetImage = downloadImage(picUrl);
+        BufferedImage targetImage = downloadImage(picUrl, itemNo);
         long end = System.currentTimeMillis();
-        log.info("download time:" + (end - start) + "ms");
+        log.info(itemNo + " download time:" + (end - start) + "ms");
         if(null == targetImage){
             // todo:增加日志
             return;
@@ -265,8 +271,27 @@ public class ItemDetailExportService {
         int desiredWidth = (int) (ROW_HEIGHT / aspectRatio); // 保持纵横比
         excelPicture.setWidth(desiredWidth);
         excelPicture.setHeight(ROW_HEIGHT);
-        // 压缩图片，值为40时，25张图片导出后文件大小为3.6M
+        // 恢复图片压缩
+        long compressStart = System.currentTimeMillis();
         excelPicture.compress(40);
+        long compressEnd = System.currentTimeMillis();
+        log.info(itemNo + " compress time:" + (compressEnd - compressStart) + "ms");
+        // // 使用 Thumbnailator 进行压缩（如需切换，取消注释下方代码）
+        // try {
+        //     BufferedImage compressedImage = Thumbnails.of(targetImage)
+        //             .size(300, 300)
+        //             .outputQuality(0.4f)
+        //             .asBufferedImage();
+        //     ExcelPicture excelPicture = sheet.getPictures().add(rowIndex, columnIndex, compressedImage);
+        //     int originalWidth = excelPicture.getWidth();
+        //     int originalHeight = excelPicture.getHeight();
+        //     double aspectRatio = (double) originalHeight / originalWidth;
+        //     int desiredWidth = (int) (ROW_HEIGHT / aspectRatio); // 保持纵横比
+        //     excelPicture.setWidth(desiredWidth);
+        //     excelPicture.setHeight(ROW_HEIGHT);
+        // } catch (IOException e) {
+        //     log.error("图片压缩失败 itemNo:{}", itemNo, e);
+        // }
     }
 
     private Workbook downloadTemplateFile(String fileUrl) {
@@ -302,7 +327,25 @@ public class ItemDetailExportService {
         }
     }
 
-    private BufferedImage downloadImage(String imageUrl) {
+    private BufferedImage downloadImage(String imageUrl, String itemNo) {
+        String redisKey = "image:" + itemNo;
+        try {
+            // 1. 先查缓存
+            Object cacheObj = redisUtils.get(redisKey);
+            if (cacheObj instanceof String) {
+                String base64Str = (String) cacheObj;
+                byte[] bytes = Base64.decodeBase64(base64Str);
+                try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
+                    BufferedImage image = ImageIO.read(inputStream);
+                    if (image != null) {
+                        return image;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("读取图片缓存失败 redisKey:{}", redisKey, e);
+        }
+        // 2. 下载图片
         HttpURLConnection connection = null;
         try {
             URL url = new URL(imageUrl);
@@ -313,15 +356,26 @@ public class ItemDetailExportService {
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 return null;
             }
-
             try (InputStream inputStream = connection.getInputStream()){
-                BufferedImage image = ImageIO.read(inputStream);
-                return image;
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    baos.write(buffer, 0, len);
+                }
+                byte[] bytes = baos.toByteArray();
+                // 写入缓存
+                String base64Str = Base64.encodeBase64String(bytes);
+                redisUtils.set(redisKey, base64Str, 7200); // 2小时
+                try (InputStream imgInput = new ByteArrayInputStream(bytes)) {
+                    BufferedImage image = ImageIO.read(imgInput);
+                    return image;
+                }
             }
-
         } catch (Exception e) {
+            log.error("下载图片失败 imageUrl:{}", imageUrl, e);
             return null;
-        }finally {
+        } finally {
             if (null != connection) {
                 connection.disconnect();
             }

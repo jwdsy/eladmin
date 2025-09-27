@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.rest.AnonymousPostMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.enums.LabelLevelEnum;
-import me.zhengjie.modules.business.rest.request.CreateItemLabelRequest;
-import me.zhengjie.modules.business.rest.request.DeleteItemLabelRequest;
-import me.zhengjie.modules.business.rest.request.GetItemLabelListRequest;
-import me.zhengjie.modules.business.rest.request.UpdateItemLabelStatusRequest;
+import me.zhengjie.modules.business.rest.request.*;
 import me.zhengjie.modules.business.rest.response.CreateItemLabelResponse;
 import me.zhengjie.modules.business.rest.response.GetFirstLabelListResponse;
 import me.zhengjie.modules.business.rest.response.GetItemLabelListResponse;
@@ -81,7 +78,7 @@ public class ItemLabelController {
 
     @ApiOperation("查询产品标签列表")
     @PostMapping(value = "/v1/getItemLabelList")
-    @PreAuthorize("@el.check('label:list')")
+//    @PreAuthorize("@el.check('label:list')")
     public ResponseEntity<GetItemLabelListResponse> getItemLabelList(@RequestBody GetItemLabelListRequest request) throws Exception {
         GetItemLabelListResponse response = itemLabelService.getItemLabelList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,8 +86,8 @@ public class ItemLabelController {
 
     @ApiOperation("查询一级产品标签列表")
     @PostMapping(value = "/v1/getFirstLabelList")
-    public ResponseEntity<GetFirstLabelListResponse> getFirstLabelList() throws Exception {
-        GetFirstLabelListResponse response = itemLabelService.getFirstLabelList();
+    public ResponseEntity<GetFirstLabelListResponse> getFirstLabelList(@RequestBody GetFirstLabelRequest request) throws Exception {
+        GetFirstLabelListResponse response = itemLabelService.getFirstLabelList(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

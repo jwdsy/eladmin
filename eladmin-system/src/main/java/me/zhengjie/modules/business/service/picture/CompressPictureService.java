@@ -1,4 +1,4 @@
-package me.zhengjie.modules.business.service.impl.picture;
+package me.zhengjie.modules.business.service.picture;
 
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadRequestException;
@@ -64,7 +64,7 @@ public class CompressPictureService {
             if(sourceFile.isDirectory()){
                 continue;
             }
-            // 只能是.jpeg 才能被识别
+            // 只能是.jpeg、.JPG才能被识别
             if(!sourceFile.getName().endsWith(".jpeg") && !sourceFile.getName().endsWith(".JPG")){
                 continue;
             }

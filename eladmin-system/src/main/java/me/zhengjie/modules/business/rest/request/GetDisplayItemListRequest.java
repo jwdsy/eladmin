@@ -31,6 +31,16 @@ public class GetDisplayItemListRequest implements Serializable {
     private Long secondLabelId;
 
     /**
+     * 年
+     */
+    private Integer year;
+
+    /**
+     * 季度
+     */
+    private Integer season;
+
+    /**
      * 第几页，默认1
      */
     private Integer pageNo = 1;

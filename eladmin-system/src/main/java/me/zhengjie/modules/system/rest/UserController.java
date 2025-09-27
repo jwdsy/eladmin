@@ -20,22 +20,23 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.annotation.Log;
-import me.zhengjie.utils.PageResult;
 import me.zhengjie.config.RsaProperties;
-import me.zhengjie.modules.system.domain.Dept;
-import me.zhengjie.modules.system.service.DataService;
-import me.zhengjie.modules.system.domain.User;
+import me.zhengjie.domain.EmailConfig;
 import me.zhengjie.exception.BadRequestException;
+import me.zhengjie.modules.system.domain.Dept;
+import me.zhengjie.modules.system.domain.User;
 import me.zhengjie.modules.system.domain.vo.UserPassVo;
-import me.zhengjie.modules.system.service.DeptService;
-import me.zhengjie.modules.system.service.RoleService;
+import me.zhengjie.modules.system.service.*;
 import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
 import me.zhengjie.modules.system.service.dto.UserQueryCriteria;
-import me.zhengjie.modules.system.service.VerifyService;
-import me.zhengjie.utils.*;
-import me.zhengjie.modules.system.service.UserService;
+import me.zhengjie.service.EmailService;
+import me.zhengjie.utils.PageResult;
+import me.zhengjie.utils.PageUtil;
+import me.zhengjie.utils.RsaUtils;
+import me.zhengjie.utils.SecurityUtils;
 import me.zhengjie.utils.enums.CodeEnum;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,9 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -64,12 +67,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
 
+    public static final String ALL_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+    public static final int COUNT = 10;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final DataService dataService;
     private final DeptService deptService;
     private final RoleService roleService;
     private final VerifyService verificationCodeService;
+    private final EmailService emailService;
 
     @ApiOperation("导出用户数据")
     @GetMapping(value = "/download")
@@ -112,9 +118,11 @@ public class UserController {
     @PreAuthorize("@el.check('user:add')")
     public ResponseEntity<Object> createUser(@Validated @RequestBody User resources){
         checkLevel(resources);
-        // 默认密码 123456
-        resources.setPassword(passwordEncoder.encode("123456"));
+        // 默认密码生成
+        String password = RandomStringUtils.random(COUNT, ALL_CHARS);
+        resources.setPassword(passwordEncoder.encode(password));
         userService.create(resources);
+        emailService.sendCreateUserEmail(resources.getNickName(), resources.getUsername(), password, resources.getEmail());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -174,8 +182,14 @@ public class UserController {
     @ApiOperation("重置密码")
     @PutMapping(value = "/resetPwd")
     public ResponseEntity<Object> resetPwd(@RequestBody Set<Long> ids) {
-        String pwd = passwordEncoder.encode("123456");
+        String password = RandomStringUtils.random(COUNT, ALL_CHARS);
+        String pwd = passwordEncoder.encode(password);
         userService.resetPwd(ids, pwd);
+        EmailConfig emailConfig = emailService.find();
+        for (Long id : ids) {
+            UserDto userDto = userService.findById(id);
+            emailService.sendResetPwdEmail(userDto.getNickName(), userDto.getUsername(), password, userDto.getEmail(), emailConfig);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

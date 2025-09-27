@@ -17,6 +17,7 @@ package me.zhengjie.service.impl;
 
 import cn.hutool.extra.mail.Mail;
 import cn.hutool.extra.mail.MailAccount;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.domain.EmailConfig;
 import me.zhengjie.domain.vo.EmailVo;
@@ -24,11 +25,13 @@ import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.repository.EmailRepository;
 import me.zhengjie.service.EmailService;
 import me.zhengjie.utils.EncryptUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 /**
@@ -39,6 +42,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "email")
 public class EmailServiceImpl implements EmailService {
+
+    @Value("${web.site:http://buckteethss.com}")
+    private String webSite;
 
     private final EmailRepository emailRepository;
 
@@ -103,5 +109,149 @@ public class EmailServiceImpl implements EmailService {
         }catch (Exception e){
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    @Override
+    public void sendCreateUserEmail(String userName, String accountName, String password, String email) {
+        EmailVo emailVo = new EmailVo();
+        emailVo.setSubject("【BEIJING SIMPLE HOME DECO CO.,LTD】Account Successfully Registered");
+        emailVo.setTos(Lists.newArrayList(email));
+        Optional<EmailConfig> emailConfigOptional = emailRepository.findById(1L);
+        EmailConfig emailConfig = emailConfigOptional.orElseGet(EmailConfig::new);
+        emailVo.setContent(buidlCreateUserEmailContent(userName, accountName, password, emailConfig.getFromUser()));
+        send(emailVo, emailConfig);
+    }
+
+    @Override
+    public void sendResetPwdEmail(String userName, String accountName, String password, String email, EmailConfig emailConfig) {
+        EmailVo emailVo = new EmailVo();
+        emailVo.setSubject("【BEIJING SIMPLE HOME DECO CO.,LTD】Your Password Has Been Reset Successfully");
+        emailVo.setTos(Lists.newArrayList(email));
+        emailVo.setContent(buidlResetPwdEmailContent(userName, accountName, password, emailConfig.getFromUser()));
+        send(emailVo, emailConfig);
+    }
+
+    private String buidlResetPwdEmailContent(String userName, String accountName, String password, String email) {
+        return "<p style=\"text-align:left;\">\n" +
+                "\t<br />\n" +
+                "\t<b>\nDear " + userName + "," +
+                "\t<br />\n" +
+                "\t<br />Your account and password on [BEIJING SIMPLE HOME DECO CO.,LTD] has been successfully reset.\n" +
+                "\t<br />\n" +
+                "\t<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>Account Username：" + accountName + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>New Password：" + password + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>WebSite：" + webSite + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p style=\"text-align:left;\">\n" +
+                "(This is an automated email—please do not reply directly.)<br /><br />\n" +
+                "For security reasons, please:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tKeep this information confidential and do not share it with others.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tChange your password after the first login for added protection.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "If you have any questions or did not request this reset, please contact:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tEmail: "+ email +"\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tCustomer Service Hotline: 86-10-59528198\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "Best regards,<br />\n" +
+                "[BEIJING SIMPLE HOME DECO CO.,LTD]<br />";
+    }
+
+    private String buidlCreateUserEmailContent(String userName, String accountName, String password, String email) {
+        return "<p style=\"text-align:left;\">\n" +
+                "\t<br />\n" +
+                "\t<b>\nDear " + userName + "," +
+                "\t<br />\n" +
+                "\t<br />Your account and password on [BEIJING SIMPLE HOME DECO CO.,LTD] has been successfully registered.\n" +
+                "\t<br />\n" +
+                "\t<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>Account Username：" + accountName + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>Password：" + password + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t<font color=\"#c24f4a\">\n" +
+                "\t\t<b>WebSite：" + webSite + "</b>\n" +
+                "\t</font>\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "</p>\n" +
+                "<p style=\"text-align:left;\">\n" +
+                "(This is an automated email—please do not reply directly.)<br /><br />\n" +
+                "For security reasons, please:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tKeep this information confidential and do not share it with others.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tChange your password after the first login for added protection.\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "If you have any questions or did not request this reset, please contact:<br />\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tEmail: "+ email +"\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "<ul>\n" +
+                "\t<li>\n" +
+                "\t\tCustomer Service Hotline: 86-10-59528198\n" +
+                "\t</li>\n" +
+                "</ul>\n" +
+                "Best regards,<br />\n" +
+                "[BEIJING SIMPLE HOME DECO CO.,LTD]<br />";
     }
 }

@@ -15,8 +15,8 @@
  */
 package me.zhengjie.service;
 
-import me.zhengjie.domain.vo.EmailVo;
 import me.zhengjie.domain.EmailConfig;
+import me.zhengjie.domain.vo.EmailVo;
 
 /**
  * @author Zheng Jie
@@ -45,4 +45,8 @@ public interface EmailService {
      * @param emailConfig 邮件配置
      */
     void send(EmailVo emailVo, EmailConfig emailConfig);
+
+    void sendCreateUserEmail(String nickName, String username, String password, String email);
+
+    void sendResetPwdEmail(String nickName, String username, String password, String email, EmailConfig emailConfig1);
 }

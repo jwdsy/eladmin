@@ -39,6 +39,16 @@ public class GetItemDetailListRequest implements Serializable {
      */
     private Integer	itemStatus;
 
+    /**
+     * 年
+     */
+    private Integer year;
+
+    /**
+     * 季度
+     */
+    private Integer season;
+
 
 
     /**
