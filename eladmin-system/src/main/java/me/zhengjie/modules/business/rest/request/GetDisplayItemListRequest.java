@@ -36,7 +36,7 @@ public class GetDisplayItemListRequest implements Serializable {
     private Integer year;
 
     /**
-     * 季度
+     * 季度 1 春季，2 夏季，3 秋季，4 冬季
      */
     private Integer season;
 

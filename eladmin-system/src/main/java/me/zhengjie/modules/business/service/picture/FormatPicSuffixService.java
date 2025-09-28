@@ -1,4 +1,4 @@
-package me.zhengjie.modules.business.service.impl.picture;
+package me.zhengjie.modules.business.service.picture;
 
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.exception.BadRequestException;
