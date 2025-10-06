@@ -9,6 +9,7 @@ import me.zhengjie.modules.business.domain.BizItemBaseRecord;
 import me.zhengjie.modules.business.domain.BizItemLabel;
 import me.zhengjie.modules.business.enums.IsTypeInteger;
 import me.zhengjie.modules.business.enums.LabelLevelEnum;
+import me.zhengjie.modules.business.enums.OrderTypeEnum;
 import me.zhengjie.modules.business.repository.BizCustomerPickRecordMapper;
 import me.zhengjie.modules.business.repository.BizItemBaseRecordMapper;
 import me.zhengjie.modules.business.repository.BizItemLabelMapper;
@@ -90,22 +91,9 @@ public class CustomerItemDisplayService {
     }
 
     public GetDisplayItemListResponse getDisplayItemList(GetDisplayItemListRequest request) {
-        // 1、封装查询条件
-        LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = new LambdaQueryWrapper<>();
 
-        if (null != request.getFirstLabelId()) {
-            queryWrapper.eq(BizItemBaseRecord::getFirstLabelId, request.getFirstLabelId());
-        }
-        if (null != request.getSecondLabelId()) {
-            queryWrapper.eq(BizItemBaseRecord::getSecondLabelId, request.getSecondLabelId());
-        }
-        if (null != request.getYear()) {
-            queryWrapper.eq(BizItemBaseRecord::getYear, request.getYear());
-        }
-        if (null != request.getSeason()) {
-            queryWrapper.eq(BizItemBaseRecord::getSeason, request.getSeason());
-        }
-
+        // 封装查询条件
+        LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = getItemListQueryWrapper(request);
         Map<Long, String> pickItemIdMap = getPickItemMap(request.getUserId());
         Set<Long> pickItemIdSet = pickItemIdMap.keySet();
         if (IsTypeInteger.YES.getCode().equals(request.getPickFlag())) {
@@ -117,10 +105,6 @@ public class CustomerItemDisplayService {
                 queryWrapper.in(BizItemBaseRecord::getId, pickItemIdSet);
             }
         }
-
-        queryWrapper.eq(BizItemBaseRecord::getItemStatus, IsTypeInteger.YES.getCode())
-                .eq(BizItemBaseRecord::getDelFlag, IsTypeInteger.NO.getCode())
-                .orderByDesc(BizItemBaseRecord::getId);
 
         // 2、分页查询数据
         PageHelper.startPage(request.getPageNo(), request.getPageSize());
@@ -155,6 +139,64 @@ public class CustomerItemDisplayService {
         GetDisplayItemListResponse response = new GetDisplayItemListResponse();
         response.setItemList(itemModelList);
         return response;
+    }
+
+    private LambdaQueryWrapper<BizItemBaseRecord> getItemListQueryWrapper(GetDisplayItemListRequest request) {
+        // 1、封装查询条件
+        LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = new LambdaQueryWrapper<>();
+
+        if (null != request.getFirstLabelId()) {
+            queryWrapper.eq(BizItemBaseRecord::getFirstLabelId, request.getFirstLabelId());
+        }
+        if (null != request.getSecondLabelId()) {
+            queryWrapper.eq(BizItemBaseRecord::getSecondLabelId, request.getSecondLabelId());
+        }
+        if (null != request.getYear()) {
+            queryWrapper.eq(BizItemBaseRecord::getYear, request.getYear());
+        }
+        if (null != request.getSeason()) {
+            queryWrapper.eq(BizItemBaseRecord::getSeason, request.getSeason());
+        }
+
+        if(null != request.getLengthMin() && null != request.getLengthMax()) {
+            queryWrapper.le(BizItemBaseRecord::getItemLength, request.getLengthMax());
+            queryWrapper.ge(BizItemBaseRecord::getItemLength, request.getLengthMin());
+        }
+        if(null != request.getWidthMin() && null != request.getWidthMax()) {
+            queryWrapper.le(BizItemBaseRecord::getItemWidth, request.getWidthMax());
+            queryWrapper.ge(BizItemBaseRecord::getItemWidth, request.getWidthMin());
+        }
+
+        if(null != request.getHeightMin() && null != request.getHeightMax()) {
+            queryWrapper.le(BizItemBaseRecord::getItemHeight, request.getHeightMax());
+            queryWrapper.ge(BizItemBaseRecord::getItemHeight, request.getHeightMin());
+        }
+
+        if (null != request.getLengthOrder()) {
+            if (OrderTypeEnum.ASC.getCode().equals(request.getLengthOrder())) {
+                queryWrapper.orderByAsc(BizItemBaseRecord::getItemLength);
+            } else if(OrderTypeEnum.DESC.getCode().equals(request.getLengthOrder())){
+                queryWrapper.orderByDesc(BizItemBaseRecord::getItemLength);
+            }
+        }
+        if (null != request.getWidthOrder()) {
+            if (OrderTypeEnum.ASC.getCode().equals(request.getWidthOrder())) {
+                queryWrapper.orderByAsc(BizItemBaseRecord::getItemWidth);
+            } else if(OrderTypeEnum.DESC.getCode().equals(request.getWidthOrder())){
+                queryWrapper.orderByDesc(BizItemBaseRecord::getItemWidth);
+            }
+        }
+        if (null != request.getHeightOrder()) {
+            if (OrderTypeEnum.ASC.getCode().equals(request.getHeightOrder())) {
+                queryWrapper.orderByAsc(BizItemBaseRecord::getItemHeight);
+            } else if(OrderTypeEnum.DESC.getCode().equals(request.getHeightOrder())){
+                queryWrapper.orderByDesc(BizItemBaseRecord::getItemHeight);
+            }
+        }
+        queryWrapper.eq(BizItemBaseRecord::getItemStatus, IsTypeInteger.YES.getCode())
+                .eq(BizItemBaseRecord::getDelFlag, IsTypeInteger.NO.getCode())
+                .orderByDesc(BizItemBaseRecord::getId);
+        return queryWrapper;
     }
 
     public Map<Long, String> getPickItemMap(Long userId) {

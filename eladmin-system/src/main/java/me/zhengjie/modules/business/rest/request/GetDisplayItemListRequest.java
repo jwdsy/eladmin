@@ -48,4 +48,38 @@ public class GetDisplayItemListRequest implements Serializable {
      * 每页数量，默认10
      */
     private Integer pageSize = 10;
+
+    // -------范围筛选-------------------------------------------------------------------------------------------------
+    /**
+     * 长度范围，null 是查全部
+     */
+    private Integer lengthMin;
+    private Integer lengthMax;
+
+    /**
+     * 宽度范围，null 是查全部
+     */
+    private Integer widthMin;
+    private Integer widthMax;
+
+    /**
+     * 高度范围，null 是查全部
+     */
+    private Integer heightMin;
+    private Integer heightMax;
+
+
+    // -------排序-----------------------------------------------------------------------------------------------------
+    /**
+     * 长度排序 1 降序；2 升序
+     */
+    private Integer lengthOrder;
+    /**
+     * 宽度排序 1 降序；2 升序
+     */
+    private Integer widthOrder;
+    /**
+     * 高度排序 1 降序；2 升序
+     */
+    private Integer heightOrder;
 }
