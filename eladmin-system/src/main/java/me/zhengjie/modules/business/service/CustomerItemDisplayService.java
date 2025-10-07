@@ -91,6 +91,7 @@ public class CustomerItemDisplayService {
     }
 
     public GetDisplayItemListResponse getDisplayItemList(GetDisplayItemListRequest request) {
+        GetDisplayItemListResponse response = new GetDisplayItemListResponse();
 
         // 封装查询条件
         LambdaQueryWrapper<BizItemBaseRecord> queryWrapper = getItemListQueryWrapper(request);
@@ -112,7 +113,7 @@ public class CustomerItemDisplayService {
 
         if (CollectionUtils.isEmpty(recordList)) {
             log.info("查询列表为空 request = {}", JSON.toJSON(request));
-            return null;
+            return response;
         }
 
         // 3、封装返回数据
@@ -136,7 +137,6 @@ public class CustomerItemDisplayService {
             itemModel.setItemHeight(BigDecimalUtil.convertToString(record.getItemHeight()));
             itemModelList.add(itemModel);
         }
-        GetDisplayItemListResponse response = new GetDisplayItemListResponse();
         response.setItemList(itemModelList);
         return response;
     }
