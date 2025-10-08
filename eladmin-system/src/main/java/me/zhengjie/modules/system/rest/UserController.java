@@ -119,8 +119,8 @@ public class UserController {
         String password = resources.getPassword();
         if (StringUtils.isEmpty(password)) {
             password = RandomStringUtils.random(COUNT, ALL_CHARS);
-            resources.setPassword(passwordEncoder.encode(password));
         }
+        resources.setPassword(passwordEncoder.encode(password));
         userService.create(resources);
         emailService.sendCreateUserEmail(resources.getNickName(), resources.getUsername(), password, resources.getEmail());
         return new ResponseEntity<>(HttpStatus.CREATED);
