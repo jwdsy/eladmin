@@ -116,9 +116,11 @@ public class UserController {
     public ResponseEntity<Object> createUser(@Validated @RequestBody User resources){
         checkLevel(resources);
         // 默认密码生成
-        String password = resources.getPassword();
-        if (StringUtils.isEmpty(password)) {
+        String password;
+        if (StringUtils.isEmpty(resources.getPassword())) {
             password = RandomStringUtils.random(COUNT, ALL_CHARS);
+        } else {
+            password = new String(resources.getPassword());
         }
         resources.setPassword(passwordEncoder.encode(password));
         userService.create(resources);
