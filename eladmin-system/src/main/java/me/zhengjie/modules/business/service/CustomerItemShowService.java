@@ -29,6 +29,7 @@ public class CustomerItemShowService {
     private BizItemShowRecordMapper bizItemShowRecordMapper;
 
     public GetItemShowListResponse getItemShowList(GetItemShowListRequest request){
+        GetItemShowListResponse response = new GetItemShowListResponse();
         LambdaQueryWrapper<BizItemShowRecord> queryWrapper = new LambdaQueryWrapper<>();
         if (null != request.getYear()) {
             queryWrapper.eq(BizItemShowRecord::getYear, request.getYear());
@@ -41,9 +42,9 @@ public class CustomerItemShowService {
                 .orderByDesc(BizItemShowRecord::getId);
         PageHelper.startPage(request.getPageNo(), request.getPageSize());
         List<BizItemShowRecord> showRecordList = bizItemShowRecordMapper.selectList(queryWrapper);
-        if(CollectionUtils.isEmpty(showRecordList)){
+        if (CollectionUtils.isEmpty(showRecordList)) {
             log.info("查询商品展示列表为空 request = {}", JSON.toJSON(request));
-            return null;
+            return response;
         }
 
         List<GetItemShowListResponse.ItemModel> itemModelList = new ArrayList<>();
@@ -56,7 +57,6 @@ public class CustomerItemShowService {
             itemModel.setItemNo(record.getItemNo());
             itemModelList.add(itemModel);
         }
-        GetItemShowListResponse response = new GetItemShowListResponse();
         response.setItemList(itemModelList);
         return response ;
     }

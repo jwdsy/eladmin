@@ -31,10 +31,7 @@ import me.zhengjie.modules.system.service.dto.RoleSmallDto;
 import me.zhengjie.modules.system.service.dto.UserDto;
 import me.zhengjie.modules.system.service.dto.UserQueryCriteria;
 import me.zhengjie.service.EmailService;
-import me.zhengjie.utils.PageResult;
-import me.zhengjie.utils.PageUtil;
-import me.zhengjie.utils.RsaUtils;
-import me.zhengjie.utils.SecurityUtils;
+import me.zhengjie.utils.*;
 import me.zhengjie.utils.enums.CodeEnum;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.Pageable;
@@ -119,7 +116,12 @@ public class UserController {
     public ResponseEntity<Object> createUser(@Validated @RequestBody User resources){
         checkLevel(resources);
         // 默认密码生成
-        String password = RandomStringUtils.random(COUNT, ALL_CHARS);
+        String password;
+        if (StringUtils.isEmpty(resources.getPassword())) {
+            password = RandomStringUtils.random(COUNT, ALL_CHARS);
+        } else {
+            password = new String(resources.getPassword());
+        }
         resources.setPassword(passwordEncoder.encode(password));
         userService.create(resources);
         emailService.sendCreateUserEmail(resources.getNickName(), resources.getUsername(), password, resources.getEmail());
