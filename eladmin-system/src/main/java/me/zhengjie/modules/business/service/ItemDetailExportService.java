@@ -223,6 +223,9 @@ public class ItemDetailExportService {
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getFactoryName());
 
             columnIndex++;
+            setContentCell(sheet, rowIndex, columnIndex, itemModel.getItemRemark());
+
+            columnIndex++;
             setContentCell(sheet, rowIndex, columnIndex, itemModel.getPickRemark());
         }
         try {

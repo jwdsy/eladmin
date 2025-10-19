@@ -138,7 +138,12 @@ public class GetItemDetailListResponse implements Serializable {
          */
         private String qtyIn40HC;
 
-// ==================== 用户填写的备注 ====================
+// ==================== 填写的备注 ====================
+        /**
+         * 自己填写的商品备注
+         */
+        private String	itemRemark;
+
         /**
          * 用户填写的备注
          */
@@ -174,10 +179,6 @@ public class GetItemDetailListResponse implements Serializable {
          * 产品状态 1 上线；2 下线
          */
         private Integer	itemStatus;
-        /**
-         * 商品备注
-         */
-        private String	itemRemark;
         /**
          * 创建时间
          */
