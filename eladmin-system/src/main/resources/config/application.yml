@@ -35,6 +35,36 @@ spring:
     #连接超时时间
     timeout: 5000
 
+image-search:
+  vector:
+    enabled: false
+    # Redis Stack RediSearch index name
+    index: idx:img:vector
+    # key prefix: img:{imageId}
+    key-prefix: img:{imageId}
+    # vector field name
+    vector-field: vec
+    # float32 embedding dimension (OpenCLIP ViT-B-32 = 512)
+    dim: 512
+    # COSINE | L2 | IP
+    distance-metric: COSINE
+    # HNSW | FLAT
+    algorithm: HNSW
+    # HNSW params
+    hnsw-m: 16
+    hnsw-ef-construction: 200
+    hnsw-ef-runtime: 100
+
+  embedding:
+    enabled: false
+    # baseline | djl
+    mode: baseline
+    # local model directory (recommended) or single model file path.
+    # Put your TorchScript/ONNX model here to avoid runtime downloads.
+    model-path: ${IMAGE_SEARCH_MODEL_PATH:}
+    # expected embedding dim
+    dim: 512
+
 task:
   pool:
     # 核心线程池大小

@@ -31,18 +31,31 @@ public class OpenCVImageSearcher {
     private String windowsFilePath;
 
 
-    static {
-        Loader.load(opencv_java.class);
+    private static final boolean OPENCV_AVAILABLE = initOpenCV();
+
+    private static boolean initOpenCV() {
+        try {
+            Loader.load(opencv_java.class);
+            return true;
+        } catch (Throwable e) {
+            log.error("OpenCV native library load failed. Image search feature is disabled.", e);
+            return false;
+        }
     }
 
     private final List<ImageData> imageDatabase = new ArrayList<>();
     private final Feature2D featureDetector;
     private final DescriptorMatcher matcher;
     public OpenCVImageSearcher() {
-        // 使用ORB特征检测器（适合中小规模图像库）
-        this.featureDetector = ORB.create();
-        // 使用汉明距离匹配器（适合ORB特征）
-        this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+        if (OPENCV_AVAILABLE) {
+            // 使用ORB特征检测器（适合中小规模图像库）
+            this.featureDetector = ORB.create();
+            // 使用汉明距离匹配器（适合ORB特征）
+            this.matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+        } else {
+            this.featureDetector = null;
+            this.matcher = null;
+        }
     }
 
     /**
@@ -50,6 +63,10 @@ public class OpenCVImageSearcher {
      */
     @PostConstruct
     public void buildImageDatabase() {
+        if (!OPENCV_AVAILABLE) {
+            log.warn("Skip building image database because OpenCV is unavailable.");
+            return;
+        }
         File directory = new File(getFilePath(macFilePath, linuxFilePath, windowsFilePath));
         if (directory.isDirectory()) {
             processDirectory(directory);
@@ -131,6 +148,10 @@ public class OpenCVImageSearcher {
      */
     public List<SearchResult> searchSimilarImages(int topN, byte[] bytes) throws IOException {
         List<SearchResult> results = new ArrayList<>();
+        if (!OPENCV_AVAILABLE) {
+            log.warn("Image search skipped because OpenCV is unavailable.");
+            return results;
+        }
         // 读取查询图片
         Mat queryImage = Imgcodecs.imdecode(new MatOfByte(bytes), Imgcodecs.IMREAD_GRAYSCALE);
         if (queryImage.empty()) {

@@ -171,6 +171,12 @@
             <classifier>macosx-arm64</classifier>
         </dependency>
         <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.7.0-1.5.9</version>
+            <classifier>macosx-x86_64</classifier>
+        </dependency>
+        <dependency>
             <artifactId>openblas</artifactId>
             <groupId>org.bytedeco</groupId>
             <version>0.3.23-1.5.9</version>
@@ -181,6 +187,12 @@
             <groupId>org.bytedeco</groupId>
             <version>0.3.23-1.5.9</version>
             <classifier>macosx-arm64</classifier>
+        </dependency>
+        <dependency>
+            <artifactId>openblas</artifactId>
+            <groupId>org.bytedeco</groupId>
+            <version>0.3.23-1.5.9</version>
+            <classifier>macosx-x86_64</classifier>
         </dependency>
 
 

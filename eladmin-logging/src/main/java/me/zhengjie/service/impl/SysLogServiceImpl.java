@@ -23,10 +23,9 @@ import lombok.RequiredArgsConstructor;
 import me.zhengjie.domain.SysLog;
 import me.zhengjie.repository.LogRepository;
 import me.zhengjie.service.SysLogService;
+import me.zhengjie.service.dto.SysLogErrorDto;
 import me.zhengjie.service.dto.SysLogQueryCriteria;
 import me.zhengjie.service.dto.SysLogSmallDto;
-import me.zhengjie.service.mapstruct.LogErrorMapper;
-import me.zhengjie.service.mapstruct.LogSmallMapper;
 import me.zhengjie.utils.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -51,15 +50,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SysLogServiceImpl implements SysLogService {
     private final LogRepository logRepository;
-    private final LogErrorMapper logErrorMapper;
-    private final LogSmallMapper logSmallMapper;
 
     @Override
     public Object queryAll(SysLogQueryCriteria criteria, Pageable pageable) {
         Page<SysLog> page = logRepository.findAll(((root, criteriaQuery, cb) -> QueryHelp.getPredicate(root, criteria, cb)), pageable);
         String status = "ERROR";
         if (status.equals(criteria.getLogType())) {
-            return PageUtil.toPage(page.map(logErrorMapper::toDto));
+            return PageUtil.toPage(page.map(this::toErrorDto));
         }
         return PageUtil.toPage(page);
     }
@@ -72,7 +69,7 @@ public class SysLogServiceImpl implements SysLogService {
     @Override
     public PageResult<SysLogSmallDto> queryAllByUser(SysLogQueryCriteria criteria, Pageable pageable) {
         Page<SysLog> page = logRepository.findAll(((root, criteriaQuery, cb) -> QueryHelp.getPredicate(root, criteria, cb)), pageable);
-        return PageUtil.toPage(page.map(logSmallMapper::toDto));
+        return PageUtil.toPage(page.map(this::toSmallDto));
     }
 
     @Override
@@ -176,5 +173,30 @@ public class SysLogServiceImpl implements SysLogService {
     @Transactional(rollbackFor = Exception.class)
     public void delAllByInfo() {
         logRepository.deleteByLogType("INFO");
+    }
+
+    private SysLogErrorDto toErrorDto(SysLog log) {
+        SysLogErrorDto dto = new SysLogErrorDto();
+        dto.setId(log.getId());
+        dto.setUsername(log.getUsername());
+        dto.setDescription(log.getDescription());
+        dto.setMethod(log.getMethod());
+        dto.setParams(log.getParams());
+        dto.setBrowser(log.getBrowser());
+        dto.setRequestIp(log.getRequestIp());
+        dto.setAddress(log.getAddress());
+        dto.setCreateTime(log.getCreateTime());
+        return dto;
+    }
+
+    private SysLogSmallDto toSmallDto(SysLog log) {
+        SysLogSmallDto dto = new SysLogSmallDto();
+        dto.setDescription(log.getDescription());
+        dto.setRequestIp(log.getRequestIp());
+        dto.setTime(log.getTime());
+        dto.setAddress(log.getAddress());
+        dto.setBrowser(log.getBrowser());
+        dto.setCreateTime(log.getCreateTime());
+        return dto;
     }
 }
