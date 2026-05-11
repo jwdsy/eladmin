@@ -16,8 +16,8 @@
 package me.zhengjie.modules.biz.service.mapstruct;
 
 import me.zhengjie.base.BaseMapper;
-import me.zhengjie.modules.biz.repository.domain.BizCustomerSubmitRecord;
 import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordDto;
+import me.zhengjie.modules.bizitem.domain.CustomerSubmitRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -26,6 +26,6 @@ import org.mapstruct.ReportingPolicy;
 * @date 2019-03-29
 */
 @Mapper(componentModel = "spring",uses = {BizCustomerSubmitRecordStructMapper.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface BizCustomerSubmitRecordStructMapper extends BaseMapper<BizCustomerSubmitRecordDto, BizCustomerSubmitRecord> {
+public interface BizCustomerSubmitRecordStructMapper extends BaseMapper<BizCustomerSubmitRecordDto, CustomerSubmitRecord> {
 
 }

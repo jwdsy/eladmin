@@ -15,16 +15,10 @@
  */
 package me.zhengjie.modules.bizitem.service;
 
-import me.zhengjie.modules.bizitem.domain.ItemBaseRecord;
 import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordDto;
 import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordQueryCriteria;
 import me.zhengjie.utils.PageResult;
 import org.springframework.data.domain.Pageable;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Zheng Jie
@@ -39,44 +33,4 @@ public interface ItemBaseRecordService {
      * @return /
      */
     PageResult<ItemBaseRecordDto> queryAll(ItemBaseRecordQueryCriteria criteria, Pageable pageable);
-
-    /**
-     * 查询所有数据不分页
-     * @param criteria 条件
-     * @return /
-     */
-    List<ItemBaseRecordDto> queryAll(ItemBaseRecordQueryCriteria criteria);
-
-    /**
-     * 根据ID查询
-     * @param id /
-     * @return /
-     */
-    ItemBaseRecordDto findById(Long id);
-
-    /**
-     * 创建
-     * @param resources /
-     */
-    void create(ItemBaseRecord resources);
-
-    /**
-     * 编辑
-     * @param resources /
-     */
-    void update(ItemBaseRecord resources);
-
-    /**
-     * 删除
-     * @param ids /
-     */
-    void delete(Set<Long> ids);
-
-    /**
-     * 导出数据
-     * @param queryAll 待导出的数据
-     * @param response /
-     * @throws IOException /
-     */
-    void download(List<ItemBaseRecordDto> queryAll, HttpServletResponse response) throws IOException;
 }

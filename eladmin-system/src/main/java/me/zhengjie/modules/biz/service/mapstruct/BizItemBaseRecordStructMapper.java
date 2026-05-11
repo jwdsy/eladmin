@@ -16,8 +16,8 @@
 package me.zhengjie.modules.biz.service.mapstruct;
 
 import me.zhengjie.base.BaseMapper;
-import me.zhengjie.modules.biz.repository.domain.BizItemBaseRecord;
-import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordDto;
+import me.zhengjie.modules.bizitem.domain.ItemBaseRecord;
+import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -26,6 +26,6 @@ import org.mapstruct.ReportingPolicy;
 * @date 2019-03-29
 */
 @Mapper(componentModel = "spring",uses = {BizItemBaseRecordStructMapper.class},unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface BizItemBaseRecordStructMapper extends BaseMapper<BizItemBaseRecordDto, BizItemBaseRecord> {
+public interface BizItemBaseRecordStructMapper extends BaseMapper<ItemBaseRecordDto, ItemBaseRecord> {
 
 }

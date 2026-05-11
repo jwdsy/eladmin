@@ -18,24 +18,18 @@ package me.zhengjie.modules.bizitem.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import me.zhengjie.annotation.Log;
-import me.zhengjie.annotation.rest.AnonymousGetMapping;
-import me.zhengjie.exception.BadRequestException;
-import me.zhengjie.modules.bizitem.domain.ItemBaseRecord;
-import me.zhengjie.modules.bizitem.service.ItemBaseRecordService;
-import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordDto;
-import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordQueryCriteria;
+import me.zhengjie.modules.bizitem.service.*;
+import me.zhengjie.modules.bizitem.service.dto.*;
 import me.zhengjie.utils.PageResult;
+import me.zhengjie.utils.SecurityUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author Zheng Jie
@@ -45,62 +39,81 @@ import java.util.Set;
 @RequiredArgsConstructor
 @ApiIgnore
 @Api(tags = "商品管理：商品基本信息")
-@RequestMapping("/api/bizitem/record")
+@RequestMapping("/api/bizitem")
 public class ItemBaseRecordController {
 
+    private final LabelService labelService;
     private final ItemBaseRecordService itemBaseRecordService;
-    private static final String ENTITY_NAME = "itemBaseRecord";
+    private final ItemDisplayService itemDisplayService;
+    private final CustomerSubmitService customerSubmitService;
+    private final CustomerPickService customerPickService;
 
-    @ApiOperation("导出商品数据")
-    @GetMapping(value = "/download")
-    @PreAuthorize("@el.check('itemRecord:list')")
-    public void exportItemBaseRecord(HttpServletResponse response, ItemBaseRecordQueryCriteria criteria) throws Exception {
-        itemBaseRecordService.download(itemBaseRecordService.queryAll(criteria), response);
-    }
 
-    @ApiOperation("查询商品")
-    @GetMapping
-    @PreAuthorize("@el.check('user:list','itemRecord:list')")
-    public ResponseEntity<PageResult<ItemBaseRecordDto>> queryItemBaseRecord(ItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
-        return new ResponseEntity<>(itemBaseRecordService.queryAll(criteria, pageable), HttpStatus.OK);
+    @ApiOperation("匿名查询标签列表（用于前台展示）")
+    @GetMapping("/label/list")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<List<LabelDto>> queryLabelList(LabelQueryCriteria criteria) throws Exception {
+        // 默认只查询上线且未删除的标签
+        criteria.setLabelStatus(1);
+        criteria.setDelFlag(0);
+        return new ResponseEntity<>(labelService.queryAllWithHierarchy(criteria), HttpStatus.OK);
     }
 
     @ApiOperation("匿名查询商品（用于前台展示）")
-    @AnonymousGetMapping("/list")
-    public ResponseEntity<PageResult<ItemBaseRecordDto>> queryItemBaseRecordAnonymous(ItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
+    @GetMapping("/record/list")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<PageResult<ItemBaseRecordDto>> queryItemBaseRecord(ItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
         // 默认只查询上线且未删除的商品
         criteria.setItemStatus(1);
         criteria.setDelFlag(0);
         return new ResponseEntity<>(itemBaseRecordService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
-    @Log("新增商品")
-    @ApiOperation("新增商品")
-    @PostMapping
-    @PreAuthorize("@el.check('itemRecord:add')")
-    public ResponseEntity<Object> createItemBaseRecord(@Validated @RequestBody ItemBaseRecord resources) {
-        if (resources.getId() != null) {
-            throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
+    @ApiOperation("获取展示产品列表（用于前台展示，支持用户选择）")
+    @GetMapping("/list")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<PageResult<ItemDisplayDto>> getDisplayItemList(ItemDisplayQueryCriteria criteria, Pageable pageable) throws Exception {
+        // 如果没有传用户ID，使用当前登录用户ID
+        if (criteria.getUserId() == null) {
+            try {
+                criteria.setUserId(SecurityUtils.getCurrentUserId());
+            } catch (Exception e) {
+                // 如果获取不到当前用户，设置为null
+                criteria.setUserId(null);
+            }
         }
-        itemBaseRecordService.create(resources);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        // 默认只查询上线且未删除的商品
+        criteria.setItemStatus(1);
+        criteria.setDelFlag(0);
+        return new ResponseEntity<>(itemDisplayService.queryDisplayItems(criteria, pageable), HttpStatus.OK);
     }
 
-    @Log("修改商品")
-    @ApiOperation("修改商品")
-    @PutMapping
-    @PreAuthorize("@el.check('itemRecord:edit')")
-    public ResponseEntity<Object> updateItemBaseRecord(@Validated @RequestBody ItemBaseRecord resources) {
-        itemBaseRecordService.update(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @ApiOperation("顾客选择喜欢的产品")
+    @PostMapping("/pick")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<Object> customerPickItem(@RequestParam Long itemId, 
+                                                    @RequestParam(required = false) String itemRemark, 
+                                                    @RequestParam Integer pickFlag) throws Exception {
+        Long userId = SecurityUtils.getCurrentUserId();
+        customerPickService.pickItem(userId, itemId, itemRemark, pickFlag);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Log("删除商品")
-    @ApiOperation("删除商品")
-    @DeleteMapping
-    @PreAuthorize("@el.check('itemRecord:del')")
-    public ResponseEntity<Object> deleteItemBaseRecord(@RequestBody Set<Long> ids) {
-        itemBaseRecordService.delete(ids);
+    @ApiOperation("顾客提交喜欢的产品")
+    @PostMapping("/submit")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<Object> customerSubmitItem() throws Exception {
+        Long userId = SecurityUtils.getCurrentUserId();
+        customerSubmitService.submitPickedItems(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("顾客取消全部喜欢的产品")
+    @PostMapping("/clean")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<Object> cancelAllPickItems() throws Exception {
+        Long userId = SecurityUtils.getCurrentUserId();
+        customerPickService.cleanPickedItems(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

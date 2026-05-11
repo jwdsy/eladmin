@@ -25,10 +25,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 public interface ItemBaseRecordRepository extends JpaRepository<ItemBaseRecord, Long>, JpaSpecificationExecutor<ItemBaseRecord> {
 
-    /**
-     * 根据商品编号查询
-     * @param itemNo 商品编号
-     * @return /
-     */
-    ItemBaseRecord findByItemNo(String itemNo);
 }

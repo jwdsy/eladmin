@@ -1,8 +1,7 @@
 package me.zhengjie.modules.biz.service;
 
-import me.zhengjie.modules.biz.repository.domain.BizItemBaseRecord;
-import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordDto;
 import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordQueryCriteria;
+import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordDto;
 import me.zhengjie.utils.PageResult;
 import org.springframework.data.domain.Pageable;
 
@@ -18,15 +17,15 @@ import java.util.Set;
 public interface BizItemBaseRecordService {
 
 
-    PageResult<BizItemBaseRecordDto> queryAll(BizItemBaseRecordQueryCriteria criteria, Pageable pageable);
+    PageResult<ItemBaseRecordDto> queryAll(BizItemBaseRecordQueryCriteria criteria, Pageable pageable);
 
-    List<BizItemBaseRecordDto> queryAll(BizItemBaseRecordQueryCriteria criteria);
+    List<ItemBaseRecordDto> queryAll(BizItemBaseRecordQueryCriteria criteria);
 
-    void download(List<BizItemBaseRecordDto> bizItemBaseRecordDtos, HttpServletResponse response);
+    void download(List<ItemBaseRecordDto> bizItemBaseRecordDtos, HttpServletResponse response);
 
-    void create(BizItemBaseRecord resources);
+    void create(ItemBaseRecordDto resources);
 
-    void update(BizItemBaseRecord resources);
+    void update(ItemBaseRecordDto resources);
 
     void delete(Set<Long> ids);
 }

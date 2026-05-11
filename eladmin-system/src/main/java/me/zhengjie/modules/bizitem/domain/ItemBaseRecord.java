@@ -134,4 +134,3 @@ public class ItemBaseRecord implements Serializable {
     private Long modifyUserId;
 
 }
-
