@@ -38,7 +38,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @ApiIgnore
-@Api(tags = "商品管理：商品基本信息")
+@Api(tags = "C端商品页相关服务")
 @RequestMapping("/api/bizitem")
 public class ItemBaseRecordController {
 
@@ -49,7 +49,7 @@ public class ItemBaseRecordController {
     private final CustomerPickService customerPickService;
 
 
-    @ApiOperation("匿名查询标签列表（用于前台展示）")
+    @ApiOperation("标签列表")
     @GetMapping("/label/list")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<List<LabelDto>> queryLabelList(LabelQueryCriteria criteria) throws Exception {
@@ -59,7 +59,7 @@ public class ItemBaseRecordController {
         return new ResponseEntity<>(labelService.queryAllWithHierarchy(criteria), HttpStatus.OK);
     }
 
-    @ApiOperation("匿名查询商品（用于前台展示）")
+    @ApiOperation("商品分页查询")
     @GetMapping("/record/list")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<PageResult<ItemBaseRecordDto>> queryItemBaseRecord(ItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
@@ -69,8 +69,8 @@ public class ItemBaseRecordController {
         return new ResponseEntity<>(itemBaseRecordService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
-    @ApiOperation("获取展示产品列表（用于前台展示，支持用户选择）")
-    @GetMapping("/list")
+    @ApiOperation("购物车商品列表")
+    @GetMapping("/cart/list")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<PageResult<ItemDisplayDto>> getDisplayItemList(ItemDisplayQueryCriteria criteria, Pageable pageable) throws Exception {
         // 如果没有传用户ID，使用当前登录用户ID
@@ -88,8 +88,8 @@ public class ItemBaseRecordController {
         return new ResponseEntity<>(itemDisplayService.queryDisplayItems(criteria, pageable), HttpStatus.OK);
     }
 
-    @ApiOperation("顾客选择喜欢的产品")
-    @PostMapping("/pick")
+    @ApiOperation("加入购物车")
+    @PostMapping("/cart/pick")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<Object> customerPickItem(@RequestParam Long itemId, 
                                                     @RequestParam(required = false) String itemRemark, 
@@ -99,8 +99,8 @@ public class ItemBaseRecordController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("顾客提交喜欢的产品")
-    @PostMapping("/submit")
+    @ApiOperation("提交购物车")
+    @PostMapping("/cart/submit")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<Object> customerSubmitItem() throws Exception {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -108,8 +108,8 @@ public class ItemBaseRecordController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("顾客取消全部喜欢的产品")
-    @PostMapping("/clean")
+    @ApiOperation("清空购物车")
+    @PostMapping("/cart/clean")
     @PreAuthorize("@el.check('cproduct:list')")
     public ResponseEntity<Object> cancelAllPickItems() throws Exception {
         Long userId = SecurityUtils.getCurrentUserId();
