@@ -47,6 +47,7 @@ public class ItemBaseRecordController {
     private final ItemDisplayService itemDisplayService;
     private final CustomerSubmitService customerSubmitService;
     private final CustomerPickService customerPickService;
+    private final ItemShowRecordService itemShowRecordService;
 
 
     @ApiOperation("标签列表")
@@ -115,5 +116,15 @@ public class ItemBaseRecordController {
         Long userId = SecurityUtils.getCurrentUserId();
         customerPickService.cleanPickedItems(userId);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("集合商品列表")
+    @GetMapping("/collection/list")
+    @PreAuthorize("@el.check('cproduct:list')")
+    public ResponseEntity<PageResult<ItemShowRecordDto>> queryItemShowRecord(ItemShowRecordQueryCriteria criteria, Pageable pageable) throws Exception {
+        // 默认只查询上线且未删除的商品
+        criteria.setItemStatus(1);
+        criteria.setDelFlag(0);
+        return new ResponseEntity<>(itemShowRecordService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 }
