@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.rest.AnonymousPostMapping;
 import me.zhengjie.exception.BadRequestException;
 import me.zhengjie.modules.business.rest.request.picture.CompressPictureRequest;
+import me.zhengjie.modules.business.rest.request.picture.FormatPicSuffixRequest;
 import me.zhengjie.modules.business.service.picture.CompressPictureService;
+import me.zhengjie.modules.business.service.picture.FormatPicSuffixService;
 import me.zhengjie.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PictureUtilsController {
     @Autowired
     private CompressPictureService compressPictureService;
+    @Autowired
+    private FormatPicSuffixService formatPicSuffixService;
 
 
     @ApiOperation("工具/压缩指定路径下的图片")
@@ -44,12 +48,12 @@ public class PictureUtilsController {
 
     @ApiOperation("工具/格式化图片后缀")
     @AnonymousPostMapping(value = "/v1/formatPicSuffix")
-    public ResponseEntity<Object> formatPicSuffix(@RequestBody CompressPictureRequest request) throws Exception {
+    public ResponseEntity<Object> formatPicSuffix(@RequestBody FormatPicSuffixRequest request) throws Exception {
         if(StringUtils.isEmpty(request.getSourcePath())){
             throw new BadRequestException("图片路径不能为空");
         }
-        Integer count = compressPictureService.compressPicture(request);
-        String result = "共压缩" + count + "张图片";
+        Integer count = formatPicSuffixService.formatPicSuffix(request);
+        String result = "共修改" + count + "张图片的后缀";
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
