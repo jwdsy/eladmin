@@ -5,12 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhengjie.annotation.Log;
-import me.zhengjie.annotation.rest.AnonymousGetMapping;
 import me.zhengjie.exception.BadRequestException;
-import me.zhengjie.modules.biz.repository.domain.BizItemBaseRecord;
 import me.zhengjie.modules.biz.service.BizItemBaseRecordService;
-import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordDto;
 import me.zhengjie.modules.biz.service.dto.BizItemBaseRecordQueryCriteria;
+import me.zhengjie.modules.bizitem.service.dto.ItemBaseRecordDto;
 import me.zhengjie.utils.PageResult;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,12 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -49,15 +43,15 @@ public class BizItemBaseRecordController {
     @ApiOperation("查询产品列表")
     @GetMapping
     @PreAuthorize("@el.check('product:list')")
-    public ResponseEntity<PageResult<BizItemBaseRecordDto>> queryBizItem(BizItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
+    public ResponseEntity<PageResult<ItemBaseRecordDto>> queryBizItem(BizItemBaseRecordQueryCriteria criteria, Pageable pageable) throws Exception {
         return new ResponseEntity<>(bizItemBaseRecordService.queryAll(criteria, pageable), HttpStatus.OK);
     }
 
-    @Log("创建/更新产品信息")
-    @ApiOperation("创建/更新产品信息")
+    @Log("创建产品信息")
+    @ApiOperation("创建产品信息")
     @PostMapping
     @PreAuthorize("@el.check('product:add')")
-    public ResponseEntity<Object> createBizItem(@Validated @RequestBody BizItemBaseRecord resources) throws Exception {
+    public ResponseEntity<Object> createBizItem(@Validated @RequestBody ItemBaseRecordDto resources) throws Exception {
         if (resources.getId() != null) {
             throw new BadRequestException("A new " + ENTITY_NAME + " cannot already have an ID");
         }
@@ -65,11 +59,11 @@ public class BizItemBaseRecordController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @Log("更新产品状态")
-    @ApiOperation("更新产品状态")
+    @Log("更新产品信息")
+    @ApiOperation("更新产品信息")
     @PutMapping
     @PreAuthorize("@el.check('product:edit')")
-    public ResponseEntity<Object> updateBizItem(@RequestBody BizItemBaseRecord resources) throws Exception {
+    public ResponseEntity<Object> updateBizItem(@RequestBody ItemBaseRecordDto resources) throws Exception {
         bizItemBaseRecordService.update(resources);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

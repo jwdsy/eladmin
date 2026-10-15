@@ -2,11 +2,11 @@ package me.zhengjie.modules.biz.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.zhengjie.modules.biz.repository.BizCustomerSubmitRecordRepository;
-import me.zhengjie.modules.biz.repository.domain.BizCustomerSubmitRecord;
 import me.zhengjie.modules.biz.service.BizCustomerSubmitRecordService;
 import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordDto;
 import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordQueryCriteria;
 import me.zhengjie.modules.biz.service.mapstruct.BizCustomerSubmitRecordStructMapper;
+import me.zhengjie.modules.bizitem.domain.CustomerSubmitRecord;
 import me.zhengjie.modules.business.rest.request.GetSimpleSubmitItemListRequest;
 import me.zhengjie.modules.business.service.CustomerSubmitManagerService;
 import me.zhengjie.utils.PageResult;
@@ -34,13 +34,13 @@ public class BizCustomerSubmitRecordServiceImpl implements BizCustomerSubmitReco
 
     @Override
     public PageResult<BizCustomerSubmitRecordDto> queryAll(BizCustomerSubmitRecordQueryCriteria criteria, Pageable pageable) {
-        Page<BizCustomerSubmitRecord> page = bizCustomerSubmitRecordRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root, criteria, criteriaBuilder), pageable);
+        Page<CustomerSubmitRecord> page = bizCustomerSubmitRecordRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root, criteria, criteriaBuilder), pageable);
         return PageUtil.toPage(page.map(bizCustomerSubmitRecordStructMapper::toDto).getContent(), page.getTotalElements());
     }
 
     @Override
     public List<BizCustomerSubmitRecordDto> queryAll(BizCustomerSubmitRecordQueryCriteria criteria) {
-        List<BizCustomerSubmitRecord> list = bizCustomerSubmitRecordRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root, criteria, criteriaBuilder));
+        List<CustomerSubmitRecord> list = bizCustomerSubmitRecordRepository.findAll((root, criteriaQuery, criteriaBuilder) -> QueryHelp.getPredicate(root, criteria, criteriaBuilder));
         return bizCustomerSubmitRecordStructMapper.toDto(list);
     }
 
@@ -52,8 +52,8 @@ public class BizCustomerSubmitRecordServiceImpl implements BizCustomerSubmitReco
     }
 
     @Override
-    public void update(BizCustomerSubmitRecord resources) {
-        BizCustomerSubmitRecord bizItem = bizCustomerSubmitRecordRepository.findById(resources.getId()).orElseGet(BizCustomerSubmitRecord::new);
+    public void update(CustomerSubmitRecord resources) {
+        CustomerSubmitRecord bizItem = bizCustomerSubmitRecordRepository.findById(resources.getId()).orElseGet(CustomerSubmitRecord::new);
         bizCustomerSubmitRecordRepository.save(resources);
     }
 

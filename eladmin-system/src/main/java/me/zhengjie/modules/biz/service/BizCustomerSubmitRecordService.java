@@ -1,8 +1,8 @@
 package me.zhengjie.modules.biz.service;
 
-import me.zhengjie.modules.biz.repository.domain.BizCustomerSubmitRecord;
 import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordDto;
 import me.zhengjie.modules.biz.service.dto.BizCustomerSubmitRecordQueryCriteria;
+import me.zhengjie.modules.bizitem.domain.CustomerSubmitRecord;
 import me.zhengjie.utils.PageResult;
 import org.springframework.data.domain.Pageable;
 
@@ -24,7 +24,7 @@ public interface BizCustomerSubmitRecordService {
 
     void download(Long submitId, HttpServletResponse response) throws Exception;
 
-    void update(BizCustomerSubmitRecord resources);
+    void update(CustomerSubmitRecord resources);
 
     void delete(Set<Long> ids);
 }
