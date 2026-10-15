@@ -46,7 +46,13 @@ public class PictureUtilsController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation("工具/格式化图片后缀")
+    /**
+     * 工具：格式化图片后缀 —— 把 sourcePath 下的 jpeg / jpg（忽略大小写）统一改成 .JPG，其他格式不动。
+     *
+     * sourcePath：必填，源文件夹。
+     * targetPath：选填，不传则原地重命名；传了则复制到该目录，源文件保留。
+     */
+    @ApiOperation(value = "工具/格式化图片后缀", notes = "jpeg/jpg（忽略大小写）统一改成 .JPG")
     @AnonymousPostMapping(value = "/v1/formatPicSuffix")
     public ResponseEntity<Object> formatPicSuffix(@RequestBody FormatPicSuffixRequest request) throws Exception {
         if(StringUtils.isEmpty(request.getSourcePath())){

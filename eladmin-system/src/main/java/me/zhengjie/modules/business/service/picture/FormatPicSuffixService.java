@@ -22,6 +22,9 @@ import java.nio.file.StandardCopyOption;
 public class FormatPicSuffixService {
     private static final String DEFAULT_PIC_SUFFIX = "JPG";
 
+    /**
+     * 把 sourcePath 下的 jpeg / jpg 统一成 .JPG，使用方式见 PictureUtilsController#formatPicSuffix 上的说明。
+     */
     public Integer formatPicSuffix(FormatPicSuffixRequest request) throws IOException {
         String sourcePath = request.getSourcePath();
         // 目标路径没传，则与源路径保持一致（即原地重命名）
